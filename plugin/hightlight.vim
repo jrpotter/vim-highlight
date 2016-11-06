@@ -13,33 +13,26 @@ let g:loaded_highlight = 1
 " SCRIPT VARIABLES:
 " ======================================================================
 
-" s:highlight_register_color :: { String : Match } {{{2
+" s:highlight_register_color :: { String : String } {{{2
 " ----------------------------------------------------------------------
+" Mapping between registry name and color that should be used for
+" highlighting.
 
-let s:highlight_register_color = { 0 : 'Yellow',
-                                 \ 1 : 'DarkYellow',
-                                 \ 2 : 'Red',
-                                 \ 3 : 'DarkRed',
-                                 \ 4 : 'Green',
-                                 \ 5 : 'DarkGreen',
-                                 \ 6 : 'Blue',
-                                 \ 7 : 'DarkBlue',
-                                 \ 8 : 'Magenta',
-                                 \ 9 : 'DarkMagenta',
-                                 \ }
+let s:highlight_register_color = {}
 
 
 " s:matches :: { String : Match } {{{2
 " ----------------------------------------------------------------------
-" List of matches corresponding to the registry for potential deletion
+" List of matches corresponding to the registry. 
 
 let s:matches = {}
 
 
 " s:registry :: { String : [String] } {{{2
 " ----------------------------------------------------------------------
-" Register to key corresponding to match. Keeps track of matches for
-" deletion afterward
+" Name of register corresponding to a list of the keys used in the
+" s:matches corresponding to the match of the word in said register.
+" Used to find the matches that can be deleted later on.
 
 let s:registry = {}
 
