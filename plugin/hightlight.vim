@@ -41,15 +41,15 @@ let s:registry = {}
 " ======================================================================
 
 function! s:MatchName(reg, word)
-    return a:reg . "_" . word
-endfunction!
+    return a:reg . '_' . word
+endfunction
 
 
 " FUNCTION: GroupName(reg) {{{1
 " ======================================================================
 
 function! s:GroupName(reg)
-    return "PlugHighlightRegister_" . a:reg
+    return 'PlugHighlightRegister_' . a:reg
 endfunction
 
 
@@ -59,7 +59,7 @@ endfunction
 " highlighted under a certain match group.
 
 function! s:ClearHighlightRegister(reg)
-    exe "hi clear " . s:GroupName(a:reg)
+    exe 'hi clear ' . s:GroupName(a:reg)
     unlet s:highlight_register_color[a:reg]
     if has_key(s:registry, a:reg)
         for m in s:registry[a:reg]
@@ -78,7 +78,7 @@ endfunction
 function! s:InitHighlightRegister(reg, color)
     call c:ClearHighlightRegister(a:reg)
     let s:highlight_register_color[a:reg] = a:color
-    exe "hi " . s:GroupName(a:reg) . " cterm=bold, underline ctermbg=" . a:color
+    exe 'hi ' . s:GroupName(a:reg) . ' cterm=bold, underline ctermbg=' . a:color
 endfunction
 
 
@@ -86,7 +86,7 @@ endfunction
 " ======================================================================
 
 function! s:AppendToSearch(reg, word)
-    let m = matchadd(s:GroupName(a:reg), "\<" . a:word . "\>")
+    let m = matchadd(s:GroupName(a:reg), '\<' . a:word . '\>')
     let s:matches[s:MatchName(a:reg, a:word)] = l:m
     if !has_key(s:registry, a:reg)
         let s:registry[a:reg] = []
@@ -113,7 +113,7 @@ function! s:RemoveFromSearch(reg, word)
         unlet s:registry[a:reg]
     endif
 endfunction
-
+ 
 
 " FUNCTION: Initialize {{{1
 " ======================================================================
