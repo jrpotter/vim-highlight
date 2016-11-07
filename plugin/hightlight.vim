@@ -77,6 +77,18 @@ function! s:ClearRegister(reg)
 endfunction
 
 
+" FUNCTION: CountOccurrences() {{{1
+" ======================================================================
+
+function! s:CountOccurrences(pattern)
+    if len(@/) > 0
+        let pos = getpos('.')
+        exe ' %s/' . a:pattern . '//gne'
+        call setpos('.', pos)
+    endif
+endfunction
+
+
 " FUNCTION: ActivateRegister(reg) {{{1
 " ======================================================================
 " We must actively set the search register to perform searches as expected.
@@ -96,7 +108,7 @@ function! s:ActivateRegister(reg)
 endfunction
 
 
-" FUNCTION: AppendToSearch(reg, pattern) {{{1
+" FUNCTION: AppendToSearch(reg, pattern, ...) {{{1
 " ======================================================================
 
 function! s:AppendToSearch(reg, pattern)
@@ -114,24 +126,7 @@ function! s:AppendToSearch(reg, pattern)
         endif
         call s:ActivateRegister(a:reg)
     endif
-endfunction
-
-
-" FUNCTION: AppendToSearchForward(reg, pattern) {{{1
-" ======================================================================
-
-function! s:AppendToSearchForward(reg, pattern)
-    call s:AppendToSearch(a:reg, a:pattern)
-    normal! *
-endfunction
-
-
-" FUNCTION: AppendToSearchBackward(reg, pattern) {{{1
-" ======================================================================
-
-function! s:AppendToSearchBackward(reg, pattern)
-    call s:AppendToSearch(a:reg, a:pattern)
-    normal! #
+    call s:CountOccurrences(a:pattern)
 endfunction
 
 
@@ -170,9 +165,9 @@ call s:AppendToSearch(v:register, @/)
 noremap <unique> <silent> <Plug>HighlightRegistry_AppendToSearch
             \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_Forward_AppendToSearch
-            \ :call <SID>AppendToSearchForward(v:register, '\<'.expand('<cword>').'\>')<CR>
+            \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_Backward_AppendToSearch
-            \ :call <SID>AppendToSearchBackward(v:register, '\<'.expand('<cword>').'\>')<CR>
+            \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_RemoveFromSearch
             \ :call <SID>RemoveFromSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_ClearRegister
@@ -182,8 +177,8 @@ noremap <unique> <silent> <Plug>HighlightRegistry_ActivateRegister
 
 " Basic Mappings
 nmap & <Plug>HighlightRegistry_AppendToSearch
-nmap * <Plug>HighlightRegistry_Forward_AppendToSearch
-nmap # <Plug>HighlightRegistry_Backward_AppendToSearch
+nmap * :silent norm! *<CR><Plug>HighlightRegistry_Forward_AppendToSearch
+nmap # :silent norm! #<CR><Plug>HighlightRegistry_Backward_AppendToSearch
 
 " Additional Register Modifiers
 nmap y& <Plug>HighlightRegistry_ActivateRegister
