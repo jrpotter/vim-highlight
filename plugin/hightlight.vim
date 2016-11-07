@@ -175,6 +175,8 @@ noremap <unique> <silent> <Plug>HighlightRegistry_RemoveFromSearch
             \ :call <SID>RemoveFromSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_ClearRegister
             \ :call <SID>ClearRegister(v:register)<CR>
+noremap <unique> <silent> <Plug>HighlightRegistry_ActivateRegister
+            \ :call <SID>ActivateRegister(v:register)<CR>
 
 " Basic Mappings
 nmap & <Plug>HighlightRegistry_AppendToSearch
@@ -182,10 +184,7 @@ nmap * <Plug>HighlightRegistry_Forward_AppendToSearch
 nmap # <Plug>HighlightRegistry_Backward_AppendToSearch
 
 " Additional Register Modifiers
+nmap y& <Plug>HighlightRegistry_ActivateRegister
 nmap d& <Plug>HighlightRegistry_RemoveFromSearch
 nmap c& <Plug>HighlightRegistry_ClearRegister
-
-" Other Mappings
-nmap n :norm! nzzzv<CR>
-nmap N :norm! Nzzzv<CR>
 
