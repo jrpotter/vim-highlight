@@ -100,19 +100,20 @@ endfunction
 " ======================================================================
 
 function! s:AppendToSearch(reg, pattern)
-    let s:last_seen = a:pattern
-    if !has_key(s:registry_colors, a:reg)
-        call s:InitRegister(a:reg, g:highlight_register_default_color)
+    if len(a:pattern) > 0
+        if !has_key(s:registry_colors, a:reg)
+            call s:InitRegister(a:reg, g:highlight_register_default_color)
+        endif
+        if !has_key(s:registry, a:reg)
+            let s:registry[a:reg] = {}
+        endif
+        " Don't want to add multiple match objects into registry
+        if !has_key(s:registry[a:reg], a:pattern)
+            let s:registry[a:reg][a:pattern] = 
+                        \ matchadd(s:GroupName(a:reg), a:pattern)
+        endif
+        call s:ActivateRegister(a:reg)
     endif
-    if !has_key(s:registry, a:reg)
-        let s:registry[a:reg] = {}
-    endif
-    " Don't want to add multiple match objects into registry
-    if !has_key(s:registry[a:reg], a:pattern)
-        let s:registry[a:reg][a:pattern] = 
-                    \ matchadd(s:GroupName(a:reg), a:pattern)
-    endif
-    call s:ActivateRegister(a:reg)
 endfunction
 
 
@@ -155,15 +156,16 @@ endfunction
 exe 'hi Search cterm=bold,underline ctermbg=none ctermfg=' . g:highlight_register_default_color
 
 call s:InitRegister('0', 'Yellow')
-call s:InitRegister('1', 'DarkYellow')
+call s:InitRegister('1', 'Blue')
 call s:InitRegister('2', 'Red')
 call s:InitRegister('3', 'Magenta')
 call s:InitRegister('4', 'Green')
 call s:InitRegister('5', 'Cyan')
-call s:InitRegister('6', 'Blue')
+call s:InitRegister('6', 'DarkYellow')
 call s:InitRegister('7', 'White')
 call s:InitRegister('8', 'Gray')
 call s:InitRegister('9', 'Black')
+call s:AppendToSearch(v:register, @/)
 
 noremap <unique> <silent> <Plug>HighlightRegistry_AppendToSearch
             \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
