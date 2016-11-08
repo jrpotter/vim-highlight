@@ -8,49 +8,49 @@ necessary to search for different keywords without overriding previous searches;
 that is, I wanted to be able to continue adding more words to a search without
 having to keep track of which words I've already searched for.
 
-["x]&                               Highlights the <cword> under the cursor
+```["x]&```                         Highlights the <cword> under the cursor
                                     into register x.
 
-["x]y&                              Sets the search register to the contents of
+```["x]y&```                        Sets the search register to the contents of
                                     register x.
 
-["x]d&                              Removes the <cword> from register x.
+```["x]d&```                        Removes the <cword> from register x.
 
-["x]c&                              Emptys register x. No patterns previously
+```["x]c&```                        Emptys register x. No patterns previously
                                     belonging inside this register will be
                                     highlighted.
 
-["x]*                               Highlights the <cword> under the cursor
+```["x]*```                         Highlights the <cword> under the cursor
                                     into register x. Moves to the next
                                     occurrence of the <cword>.
 
-["x]#                               Highlights the <cword> under the cursor
+```["x]#```                         Highlights the <cword> under the cursor
                                     into register x. Moves to the previous
                                     occurrence of the <cword>.
 
-["x]g&                              Highlights the <cword> under the cursor, but
+```["x]g&```                        Highlights the <cword> under the cursor, but
                                     without forcing any highlighted occurrences
                                     to be a word. That is, if the selected
                                     <cword> is a substring of any text in the
                                     current buffer, the substring will also be
                                     highlighted.
 
-["x]g*                              Works like ["x]g& but also moves to the next
+```["x]g*```                        Works like ["x]g& but also moves to the next
                                     occurrence of the pattern.
 
-["x]g#                              Works like ["x]g& but also moves to the
+```["x]g#```                        Works like ["x]g& but also moves to the
                                     previous occurrence of the pattern.
 
-v_["x]&                             Note the v indicates visual mode. Works like
+```v_["x]&```                       Note the v indicates visual mode. Works like
                                     g&, but with the visually selected region.
 
-v_["x]*                             Note the v indicates visual mode. Works like
+```v_["x]*```                       Note the v indicates visual mode. Works like
                                     g*, but with the visually selected region.
 
-v_["x]#                             Note the v indicates visual mode. Works like
+```v_["x]#```                       Note the v indicates visual mode. Works like
                                     g#, but with the visually selected region.
 
-v_["x]d&                            Note the v indicates visual mode. Removes
+```v_["x]d&```                      Note the v indicates visual mode. Removes
                                     the visually selected region from register
                                     x.
 
