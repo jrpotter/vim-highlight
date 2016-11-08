@@ -183,12 +183,14 @@ call s:InitRegister('9', 'Black')
 
 call s:AppendToSearch(v:register, @/)
 
+" Word Boundary Search Modifications
 noremap <unique> <silent> <Plug>HighlightRegistry_AppendToSearch
             \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
             \ :call <SID>CountLastSeen()<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_RemoveFromSearch
             \ :call <SID>RemoveFromSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
 
+" Arbitrary Search Modifications
 noremap <unique> <silent> <Plug>HighlightRegistry_GlobalAppendToSearch
             \ :call <SID>AppendToSearch(v:register, expand('<cword>'))<CR>
             \ :call <SID>CountLastSeen()<CR>
@@ -198,15 +200,17 @@ noremap <unique> <silent> <Plug>HighlightRegistry_VisualAppendToSearch
 noremap <unique> <silent> <Plug>HighlightRegistry_VisualRemoveFromSearch
             \ :call <SID>RemoveFromSearch(v:register, <SID>GetVisualSelection())<CR>
 
+" Register Modifications
 noremap <unique> <silent> <Plug>HighlightRegistry_ClearRegister
             \ :call <SID>ClearRegister(v:register)<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_ActivateRegister
             \ :call <SID>ActivateRegister(v:register)<CR>
 
+" Miscellaneous Mappings
 noremap <unique> <silent> <Plug>HighlightRegistry_CountLastSeen
             \ :call <SID>CountLastSeen()<CR>
 
-" Basic Mappings
+" Default Mappings
 nmap & <Plug>HighlightRegistry_AppendToSearch
 nmap * :silent norm! *<CR>&
 nmap # :silent norm! #<CR>&
