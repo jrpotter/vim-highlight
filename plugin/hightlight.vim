@@ -90,6 +90,7 @@ endfunction
 function! s:CountLastSeen()
     if len(@/) > 0
         let pos = getpos('.')
+        let pos[2] = pos[2] - 1
         exe ' %s/' . s:last_seen . '//gne'
         call setpos('.', pos)
     endif
