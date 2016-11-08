@@ -4,6 +4,7 @@
 CONTENTS                                                 *highlight-contents*
 
 1. Usage .................................................. |highlight-usage|
+2. Variables .......................................... |highlight-variables|
 
 ============================================================================
 Section 1: Usage                                            *highlight-usage*
@@ -53,5 +54,13 @@ v_["x]#                             Note the v indicates visual mode. Works like
 v_["x]d&                            Note the v indicates visual mode. Removes
                                     the visually selected region from register
                                     x.
+
+============================================================================
+Section 2: Variables                                    *highlight-variables*
+
+g:highlight_register_default_color
+
+                    Default color used when initializing an unused register.
+
 
 vim:tw=78:ts=8:ft=help:norl:
