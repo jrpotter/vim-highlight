@@ -19,6 +19,13 @@ let g:highlight_register_default_color = 'Yellow'
 " SCRIPT VARIABLES:
 " ======================================================================
 
+" s:last_seen :: String {{{2
+" ----------------------------------------------------------------------
+" The pattern last appended to a registry list.
+
+let s:last_seen = @/
+
+
 " s:registry_colors :: { String : String } {{{2
 " ----------------------------------------------------------------------
 " Mapping between registry name and color that should be used for
@@ -77,13 +84,13 @@ function! s:ClearRegister(reg)
 endfunction
 
 
-" FUNCTION: CountOccurrences() {{{1
+" FUNCTION: CountLastSeen() {{{1
 " ======================================================================
 
-function! s:CountOccurrences(pattern)
+function! s:CountLastSeen()
     if len(@/) > 0
         let pos = getpos('.')
-        exe ' %s/' . a:pattern . '//gne'
+        exe ' %s/' . s:last_seen . '//gne'
         call setpos('.', pos)
     endif
 endfunction
@@ -112,6 +119,7 @@ endfunction
 " ======================================================================
 
 function! s:AppendToSearch(reg, pattern)
+    let s:last_seen = a:pattern
     if len(a:pattern) > 0
         if !has_key(s:registry_colors, a:reg)
             call s:InitRegister(a:reg, g:highlight_register_default_color)
@@ -126,7 +134,19 @@ function! s:AppendToSearch(reg, pattern)
         endif
         call s:ActivateRegister(a:reg)
     endif
-    call s:CountOccurrences(a:pattern)
+endfunction
+
+
+" FUNCTION: GetVisualSelection {{{1
+" ======================================================================
+
+function! s:GetVisualSelection()
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+    let lines = getline(lnum1, lnum2)
+    let lines[-1] = lines[-1][:col2 - (&selection == 'inclusive' ? 1 : 2)]
+    let lines[0] = lines[0][col1 - 1:]
+    return substitute(escape(join(lines, "\n"), '\\/.*$%~[]'), '\n', '\\n', 'g')
 endfunction
 
 
@@ -160,28 +180,48 @@ call s:InitRegister('6', 'DarkYellow')
 call s:InitRegister('7', 'White')
 call s:InitRegister('8', 'Gray')
 call s:InitRegister('9', 'Black')
+
 call s:AppendToSearch(v:register, @/)
 
 noremap <unique> <silent> <Plug>HighlightRegistry_AppendToSearch
             \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
-noremap <unique> <silent> <Plug>HighlightRegistry_Forward_AppendToSearch
-            \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
-noremap <unique> <silent> <Plug>HighlightRegistry_Backward_AppendToSearch
-            \ :call <SID>AppendToSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
+            \ :call <SID>CountLastSeen()<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_RemoveFromSearch
             \ :call <SID>RemoveFromSearch(v:register, '\<'.expand('<cword>').'\>')<CR>
+
+noremap <unique> <silent> <Plug>HighlightRegistry_GlobalAppendToSearch
+            \ :call <SID>AppendToSearch(v:register, expand('<cword>'))<CR>
+            \ :call <SID>CountLastSeen()<CR>
+noremap <unique> <silent> <Plug>HighlightRegistry_VisualAppendToSearch
+            \ :call <SID>AppendToSearch(v:register, <SID>GetVisualSelection())<CR>
+            \ :call <SID>CountLastSeen()<CR>
+noremap <unique> <silent> <Plug>HighlightRegistry_VisualRemoveFromSearch
+            \ :call <SID>RemoveFromSearch(v:register, <SID>GetVisualSelection())<CR>
+
 noremap <unique> <silent> <Plug>HighlightRegistry_ClearRegister
             \ :call <SID>ClearRegister(v:register)<CR>
 noremap <unique> <silent> <Plug>HighlightRegistry_ActivateRegister
             \ :call <SID>ActivateRegister(v:register)<CR>
 
+noremap <unique> <silent> <Plug>HighlightRegistry_CountLastSeen
+            \ :call <SID>CountLastSeen()<CR>
+
 " Basic Mappings
 nmap & <Plug>HighlightRegistry_AppendToSearch
-nmap * :silent norm! *<CR><Plug>HighlightRegistry_Forward_AppendToSearch
-nmap # :silent norm! #<CR><Plug>HighlightRegistry_Backward_AppendToSearch
+nmap * :silent norm! *<CR>&
+nmap # :silent norm! #<CR>&
 
-" Additional Register Modifiers
+nmap g& <Plug>HighlightRegistry_GlobalAppendToSearch
+nmap g* :silent norm! *<CR>g&
+nmap g# :silent norm! #<CR>g&
+
 nmap y& <Plug>HighlightRegistry_ActivateRegister
 nmap d& <Plug>HighlightRegistry_RemoveFromSearch
 nmap c& <Plug>HighlightRegistry_ClearRegister
+
+vmap & <Plug>HighlightRegistry_VisualAppendToSearch'<
+vmap * &n<Plug>HighlightRegistry_CountLastSeen
+vmap # &N<Plug>HighlightRegistry_CountLastSeen
+
+vmap d& <Plug>HighlightRegistry_VisualRemoveFromSearch'<
 
