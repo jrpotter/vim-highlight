@@ -1,4 +1,4 @@
-*highlight.txt* functionality of the highlight registry
+*highlight-registry* functionality of the highlight registry
 
 ============================================================================
 CONTENTS                                                 *highlight-contents*
