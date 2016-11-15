@@ -28,8 +28,8 @@ management as follows:
 Plug 'jrpotter/vim-highlight'
 ```
 
-Follow use according to plugin manager you use or optionally, copy
-plugin/highlight.vim from this repo into $VIM_DIR/plugin.
+Follow use according to plugin manager you use or optionally copy
+plugin/highlight.vim from this repo into ```$VIM_DIR/plugin```.
 
 Usage
 -----
@@ -56,5 +56,4 @@ Overloading of ```*```, ```#```, ```g*```, and ```g#``` is also done.
 Lastly, the numeral registers are highlighted different colors but by default
 none of the other registers are. Instead, they are initialized with the
 ```g:highlight_register_default_color``` variable, which starts with value
-```Yellow```.
-
+"Yellow."
