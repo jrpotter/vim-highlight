@@ -35,8 +35,8 @@ let s:registry = {}
 " Note group names are not allowed to have special characters; they 
 " must be alphanumeric or underscores.
 
-function! highlight#get_group_name()
-  return 'highlight_registry_' . char2nr(v:register)
+function! highlight#get_group_name(reg)
+  return 'highlight_registry_' . char2nr(a:reg)
 endfunction
 
 
@@ -44,10 +44,10 @@ endfunction
 " ======================================================================
 " Setups the group and highlighting. Matches are added afterward.
 
-function! highlight#init_register(color)
-  call highlight#clear_register()
-  let s:registry_colors[v:register] = a:color
-  exe 'hi ' . highlight#get_group_name() .
+function! highlight#init_register(reg, color)
+  call highlight#clear_register(a:reg)
+  let s:registry_colors[a:reg] = a:color
+  exe 'hi ' . highlight#get_group_name(a:reg) .
       \ ' cterm=bold,underline ctermfg=' . a:color
 endfunction
 
@@ -57,19 +57,19 @@ endfunction
 " Used to clear out the 'registers' that are used to hold which values are
 " highlighted under a certain match group.
 
-function! highlight#clear_register()
-  exe 'hi clear ' . highlight#get_group_name()
-  if has_key(s:registry_colors, v:register)
-    unlet s:registry_colors[v:register]
+function! highlight#clear_register(reg)
+  exe 'hi clear ' . highlight#get_group_name(a:reg)
+  if has_key(s:registry_colors, a:reg)
+    unlet s:registry_colors[a:reg]
   endif
-  if has_key(s:registry, v:register)
-    for key in keys(s:registry[v:register])
-      call matchdelete(s:registry[v:register][key])
-        unlet s:registry[v:register][key]
+  if has_key(s:registry, a:reg)
+    for key in keys(s:registry[a:reg])
+      call matchdelete(s:registry[a:reg][key])
+      unlet s:registry[a:reg][key]
     endfor
-    unlet s:registry[v:register]
+    unlet s:registry[a:reg]
   endif
-  call highlight#activate_register()
+  call highlight#activate_register(a:reg)
 endfunction
 
 
@@ -79,7 +79,6 @@ endfunction
 function! highlight#count_last_seen()
   if len(@/) > 0
     let pos = getpos('.')
-    let pos[2] = pos[2] - 1
     exe ' %s/' . s:last_seen . '//gne'
     call setpos('.', pos)
   endif
@@ -90,15 +89,15 @@ endfunction
 " ======================================================================
 " We must actively set the search register to perform searches as expected.
 
-function! highlight#activate_register()
-  if has_key(s:registry, v:register) && has_key(s:registry_colors, v:register)
+function! highlight#activate_register(reg)
+  if has_key(s:registry, a:reg) && has_key(s:registry_colors, a:reg)
     let search = ''
-    for key in keys(s:registry[v:register])
+    for key in keys(s:registry[a:reg])
       let search = search . key . '\|'
     endfor
     let @/ = search[:-3]
     exe 'hi Search cterm=bold,underline ctermbg=none ctermfg=' .
-        \ s:registry_colors[v:register]
+        \ s:registry_colors[a:reg]
     set hlsearch
   else
     let @/ = ''
@@ -106,25 +105,26 @@ function! highlight#activate_register()
 endfunction
 
 
-" FUNCTION: AppendToSearch(pattern, ...) {{{1
+" FUNCTION: AppendToSearch(pattern) {{{1
 " ======================================================================
 
-function! highlight#append_to_search(pattern)
+function! highlight#append_to_search(reg, pattern)
   let s:last_seen = a:pattern
-  if len(a:pattern) > 0
-    if !has_key(s:registry_colors, v:register)
-      call highlight#init_register(g:highlight_register_default_color)
-    endif
-    if !has_key(s:registry, v:register)
-      let s:registry[v:register] = {}
-    endif
-    " Don't want to add multiple match objects into registry
-    if !has_key(s:registry[v:register], a:pattern)
-      let s:registry[v:register][a:pattern] = 
-          \ matchadd(highlight#get_group_name(), a:pattern)
-    endif
-    call highlight#activate_register()
+  if len(a:pattern) == 0
+    return
   endif
+  if !has_key(s:registry_colors, a:reg)
+    call highlight#init_register(a:reg, g:highlight_register_default_color)
+  endif
+  if !has_key(s:registry, a:reg)
+    let s:registry[a:reg] = {}
+  endif
+  " Don't want to add multiple match objects into registry
+  if !has_key(s:registry[a:reg], a:pattern)
+    let s:registry[a:reg][a:pattern] = 
+        \ matchadd(highlight#get_group_name(a:reg), a:pattern)
+  endif
+  call highlight#activate_register(a:reg)
 endfunction
 
 
@@ -144,16 +144,16 @@ endfunction
 " FUNCTION: RemoveFromSearch(pattern) {{{1
 " ======================================================================
 
-function! highlight#remove_from_search(pattern)
-  if has_key(s:registry, v:register)
-    if has_key(s:registry[v:register], a:pattern)
-      call matchdelete(s:registry[v:register][a:pattern])
-      unlet s:registry[v:register][a:pattern]
-      if len(s:registry[v:register]) == 0
-        unlet s:registry[v:register]
+function! highlight#remove_from_search(reg, pattern)
+  if has_key(s:registry, a:reg)
+    if has_key(s:registry[a:reg], a:pattern)
+      call matchdelete(s:registry[a:reg][a:pattern])
+      unlet s:registry[a:reg][a:pattern]
+      if len(s:registry[a:reg]) == 0
+        unlet s:registry[a:reg]
       endif
     endif
   endif
-  call highlight#activate_register()
+  call highlight#activate_register(a:reg)
 endfunction
 

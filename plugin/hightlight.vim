@@ -25,16 +25,16 @@ endif
 " ----------------------------------------------------------------------
 
 if !exists('g:highlight_registry')
-    let g:highlight_registry = { '0' : 'Yellow'
-                               \ '1' : 'Blue'
-                               \ '2' : 'Red'
-                               \ '3' : 'Magenta'
-                               \ '4' : 'Green'
-                               \ '5' : 'Cyan'
-                               \ '6' : 'DarkYellow'
-                               \ '7' : 'White'
-                               \ '8' : 'Gray'
-                               \ '9' : 'Black'
+    let g:highlight_registry = { '0' : 'Yellow',
+                               \ '1' : 'Blue',
+                               \ '2' : 'Red',
+                               \ '3' : 'Magenta',
+                               \ '4' : 'Green',
+                               \ '5' : 'Cyan',
+                               \ '6' : 'DarkYellow',
+                               \ '7' : 'White',
+                               \ '8' : 'Gray',
+                               \ '9' : 'Black',
                                \ }
 endif
 
@@ -44,44 +44,47 @@ endif
 
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
-    \ :call highlight#append_to_search('\<'.expand('<cword>').'\>')<CR>
-    \ :call highlight#count_last_seen()<CR>
+    \ :call highlight#append_to_search(v:register, '\<'.expand('<cword>').'\>')<Bar>
+    \  call highlight#count_last_seen()<CR>
 noremap <Plug>HRegistry_GlobalAppendToSearch
-    \ :call highlight#append_to_search(expand('<cword>'))<CR>
-    \ :call highlight#count_last_seen()<CR>
+    \ :call highlight#append_to_search(v:register, expand('<cword>'))<Bar>
+    \  call highlight#count_last_seen()<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
-    \ :call highlight#append_to_search(highlight#get_visual_selection())<CR>
-    \ :call highlight#count_last_seen()<CR>'<
+    \ :call highlight#append_to_search(v:register, highlight#get_visual_selection())<Bar>
+    \  call highlight#count_last_seen()<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
-    \ :call highlight#remove_from_search('\<'.expand('<cword>').'\>')<CR>
+    \ :call highlight#remove_from_search(v:register, '\<'.expand('<cword>').'\>')<CR>
 noremap <Plug>HRegistry_VisualRemoveFromSearch
-    \ :call highlight#remove_from_search(highlight#get_visual_selection())<CR>'<
+    \ :call highlight#remove_from_search(v:register, highlight#get_visual_selection())<CR>
 
 " Other Modifications
-noremap <Plug>HRegistry_ClearRegister :call highlight#clear_register()<CR>
-noremap <Plug>HRegistry_ActivateRegister :call highlight#activate_register()<CR>
-noremap <Plug>HRegistry_CountLastSeen :call highlight#count_last_seen()<CR>
+noremap <Plug>HRegistry_ClearRegister
+    \ :call highlight#clear_register(v:register)<CR>
+noremap <Plug>HRegistry_ActivateRegister
+    \ :call highlight#activate_register(v:register)<CR>
+noremap <Plug>HRegistry_CountLastSeen
+    \ :call highlight#count_last_seen()<CR>
 
 " Normal Mappings
-nmap  & <Plug>HRegistry_AppendToSearch
-nmap g& <Plug>HRegistry_GlobalAppendToSearch
-nmap y& <Plug>HRegistry_ActivateRegister
-nmap d& <Plug>HRegistry_RemoveFromSearch
-nmap c& <Plug>HRegistry_ClearRegister
+nmap <silent>  & <Plug>HRegistry_AppendToSearch
+nmap <silent> g& <Plug>HRegistry_GlobalAppendToSearch
+nmap <silent> y& <Plug>HRegistry_ActivateRegister
+nmap <silent> d& <Plug>HRegistry_RemoveFromSearch
+nmap <silent> c& <Plug>HRegistry_ClearRegister
 
-nmap  * :silent norm! *<CR>&
-nmap g* :silent norm! *<CR>g&
+nmap <silent>  * :silent norm! *<CR>&
+nmap <silent> g* :silent norm! *<CR>g&
 
-nmap  # :silent norm! #<CR>&
-nmap g# :silent norm! #<CR>g&
+nmap <silent>  # :silent norm! #<CR>&
+nmap <silent> g# :silent norm! #<CR>g&
 
 " Visual Mappings
-vmap  & <Plug>HRegistry_VisualAppendToSearch
-vmap d& <Plug>HRegistry_VisualRemoveFromSearch
-vmap  * &n<Plug>HRegistry_CountLastSeen
-vmap  # &N<Plug>HRegistry_CountLastSeen
+vmap <silent>  & <Plug>HRegistry_VisualAppendToSearch'<
+vmap <silent> d& <Plug>HRegistry_VisualRemoveFromSearch'<
+vmap <silent>  * &n<Plug>HRegistry_CountLastSeen
+vmap <silent>  # &N<Plug>HRegistry_CountLastSeen
 
 
 " PROCEDURE: Initialize {{{1
