@@ -1,12 +1,12 @@
 *highlight-registry* functionality of the highlight registry
 
-============================================================================
+=============================================================================
 CONTENTS                                                 *highlight-contents*
 
 1. Usage .................................................. |highlight-usage|
 2. Variables .......................................... |highlight-variables|
 
-============================================================================
+=============================================================================
 Section 1: Usage                                            *highlight-usage*
 
 ["x]&                               Highlights the <cword> under the cursor
@@ -55,7 +55,7 @@ v_["x]d&                            Note the v indicates visual mode. Removes
                                     the visually selected region from register
                                     x.
 
-============================================================================
+=============================================================================
 Section 2: Variables                                    *highlight-variables*
 
 g:highlight_register_default_color
