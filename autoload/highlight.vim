@@ -73,6 +73,21 @@ function! highlight#clear_register(reg)
 endfunction
 
 
+" FUNCTION: ClearAllRegisters() {{{1
+" ======================================================================
+
+function! highlight#clear_all_registers()
+  for key in keys(g:highlight_registry)
+    call highlight#init_register(key, g:highlight_registry[key])
+  endfor
+  for key in keys(s:registry)
+    if !has_key(g:highlight_registry, key)
+      call highlight#clear_register(key)
+    endif
+  endfor
+endfunction
+
+
 " FUNCTION: CountLastSeen() {{{1
 " ======================================================================
 

@@ -87,11 +87,18 @@ vmap <silent>  * &n<Plug>HRegistry_CountLastSeen
 vmap <silent>  # &N<Plug>HRegistry_CountLastSeen
 
 
+" PROCEDURE: Commands {{1
+" ======================================================================
+
+function! s:ClearHighlightRegistry()
+  call highlight#clear_all_registers()
+endfunction
+command ClearHighlightRegistry :call <SID>ClearHighlightRegistry()
+
+
 " PROCEDURE: Initialize {{{1
 " ======================================================================
 
-for key in keys(g:highlight_registry)
-  call highlight#init_register(key, g:highlight_registry[key])
-endfor
+call s:ClearHighlightRegistry()
 call highlight#append_to_search(v:register, @/)
 
