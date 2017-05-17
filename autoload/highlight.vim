@@ -201,9 +201,7 @@ function! highlight#activate_register(reg)
       let search = search . key . '\|'
     endfor
     let @/ = search[:-3]
-    for l:group in g:highlight_linkage
-      exe 'hi! link' l:group highlight#get_group_name(a:reg)
-    endfor
+    exe 'hi! link Search' highlight#get_group_name(a:reg)
     set hlsearch
   else
     let @/ = ''
