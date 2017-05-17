@@ -1,8 +1,8 @@
-" ======================================================================
+" ==============================================================================
 " File:            highlight.vim
 " Maintainer:      Joshua Potter <jrpotter2112@gmail.com>
 "
-" ======================================================================
+" ==============================================================================
 
 if exists('g:loaded_highlight_registry')
   finish
@@ -11,10 +11,15 @@ let g:loaded_highlight_registry = 1
 
 
 " GLOBAL VARIABLES:
-" ======================================================================
+" ==============================================================================
 
 " g:highlight_registry :: { String : String } {{{2
-" ----------------------------------------------------------------------
+" ------------------------------------------------------------------------------
+" The following dictionary corresponds to registers 0-9 and their respective
+" colors. Adjust this to set the colors for a given register. If a register
+" isn't added to this dictionary before being attempted to be used, one of the
+" least most colors will be chosen instead. See *cterm-colors*.
+" TODO(jrpotter): Allow for better automatic color choices.
 
 if !exists('g:highlight_registry')
   let g:highlight_registry = { '0' : 'Yellow',
@@ -32,18 +37,22 @@ endif
 
 
 " MAPPINGS: {{{1
-" ======================================================================
+" ==============================================================================
+
+let s:word = 'expand("<cword>")'
+let s:cword = '\<expand(<cword>)\>'
+let s:vword = 'highlight#get_visual_selection()'
 
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
-    \ :call highlight#append_to_search(v:register, '\<'.expand('<cword>').'\>')<Bar>
-    \  call highlight#count_pattern('\<'.expand('<cword>').'\>')<CR>
-noremap <Plug>HRegistry_GlobalAppendToSearch
-    \ :call highlight#append_to_search(v:register, expand('<cword>'))<Bar>
-    \  call highlight#count_pattern(expand('<cword>'))<CR>
+    \ :call highlight#append_to_search(v:register, 'c')<Bar>
+    \  call highlight#count_pattern(eval(s:cword))<CR>
+noremap <Plug>HRegistry_GAppendToSearch
+    \ :call highlight#append_to_search(v:register, 'g')<Bar>
+    \  call highlight#count_pattern(eval(s:word))<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
-    \ :call highlight#append_to_search(v:register, highlight#get_visual_selection())<Bar>
-    \  call highlight#count_pattern(highlight#get_visual_selection())<CR>
+    \ :call highlight#append_to_search(v:register, 'v')<Bar>
+    \  call highlight#count_pattern(eval(s:vword))<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
@@ -61,7 +70,7 @@ noremap <Plug>HRegistry_CountLastSeen
 
 " Normal Mappings
 nmap <silent>  & <Plug>HRegistry_AppendToSearch
-nmap <silent> g& <Plug>HRegistry_GlobalAppendToSearch
+nmap <silent> g& <Plug>HRegistry_GAppendToSearch
 nmap <silent> y& <Plug>HRegistry_ActivateRegister
 nmap <silent> d& <Plug>HRegistry_RemoveFromSearch
 nmap <silent> c& <Plug>HRegistry_ClearRegister
@@ -80,7 +89,7 @@ vmap <silent>  # &N<Plug>HRegistry_CountLastSeen
 
 
 " PROCEDURE: Commands {{1
-" ======================================================================
+" ==============================================================================
 
 function! s:ClearHighlightRegistry()
   call highlight#clear_all_registers()
@@ -89,7 +98,7 @@ command ClearHighlightRegistry :call <SID>ClearHighlightRegistry()
 
 
 " PROCEDURE: Initialize {{{1
-" ======================================================================
+" ==============================================================================
 
 call s:ClearHighlightRegistry()
 call highlight#append_to_search(v:register, @/)

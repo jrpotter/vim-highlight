@@ -1,35 +1,88 @@
-" ======================================================================
+" ==============================================================================
 " File:            highlight.vim
 " Maintainer:      Joshua Potter <jrpotter2112@gmail.com>
 "
-" ======================================================================
+" ==============================================================================
 
 " SCRIPT VARIABLES:
-" ======================================================================
+" ==============================================================================
 
 " s:active_register :: String {{{2
-" ----------------------------------------------------------------------
+" ------------------------------------------------------------------------------
 " The register currently active. This defaults to the unnamed register.
 
 let s:active_register = "\""
 
 
 " s:registry :: { String : { String : Match } } {{{2
-" ----------------------------------------------------------------------
-" Name of register corresponding to a dict of some unique identifier of the
-" word being matched, paired with the actual match object.
+" ------------------------------------------------------------------------------
+" The keys of the outer dictionary are any active registers (that is, before a
+" call to clear register is called). By default, this will be set to be
+" populated with at least g:highlight_registry once the plugin is loaded.
+"
+" The corresponding values of the outer dictionary is a key value pairing of a
+" matched identifier and the Match object corresponding to it. We must keep
+" track of match objects as they must be deleted manually by matchdelete.
 
 let s:registry = {}
 
 
+" FUNCTION: ExpandFlag(flag) {{{1
+" ==============================================================================
+" Convenience method used to make the mappings in plugin/highlight.vim a bit
+" easier to read through. The passed flag can be:
+"
+" c) Indicates the current word, with word boundary.
+" g) Indicates the current word, without word boundary.
+" v) Indicates the current visual selection.
+
+function! highlight#expand_flag(a:flag) abort
+  if a:flag ==# 'c'
+    return '\<' . expand('<cword>') . '\>'
+  elseif a:flag ==# 'g'
+    return expand('<cword>')
+  elseif a:flag ==# 'v'
+    return highlight#get_visual_selection()
+  endif
+  throw 'Could not expand passed flag: ' . a:flag
+endfunction
+
+
+" FUNCTION: CountPattern(flag) {{{1
+" ==============================================================================
+" Convenience method used to display the number of times the passed pattern has
+" occurred in the current buffer.
+
+function! highlight#count_pattern(flag)
+  let l:pattern = highlight#expand_flag(a:flag)
+  if len(@/) > 0
+    let pos = getpos('.')
+    exe ' %s/' . l:pattern . '//gne'
+    call setpos('.', pos)
+  endif
+endfunction
+
+
+" FUNCTION: GetVisualSelection {{{1
+" ==============================================================================
+
+function! highlight#get_visual_selection()
+  let [lnum1, col1] = getpos("'<")[1:2]
+  let [lnum2, col2] = getpos("'>")[1:2]
+  let lines = getline(lnum1, lnum2)
+  let lines[-1] = lines[-1][:col2 - (&selection == 'inclusive' ? 1 : 2)]
+  let lines[0] = lines[0][col1 - 1:]
+  return substitute(escape(join(lines, "\n"), '\\/.*$%~[]'), '\n', '\\n', 'g')
+endfunction
+
+
 " FUNCTION: Statusline() {{{1
-" ======================================================================
+" ==============================================================================
 " Allow for integrating the currently highlighted section into the statusline.
 " If airline is found, synchronize the accent with the highlighting.
 " Can use as follows:
-" call airline#parts#define_function('foo', 'highlight#airline_status')
+" call airline#parts#define_function('foo', 'highlight#airline_status()')
 " call airline#parts#define_minwidth('foo', 50)
-" call airline#parts#define_condition('foo', 'getcwd() =~ "work_dir"')
 " let g:airline_section_y = airline#section#create_right(['ffenc', 'foo'])
 
 function! highlight#statusline(...)
@@ -48,7 +101,7 @@ endfunction
 
 
 " FUNCTION: GetGroupName(reg) {{{1
-" ======================================================================
+" ==============================================================================
 " Note group names are not allowed to have special characters; they 
 " must be alphanumeric or underscores.
 
@@ -58,7 +111,7 @@ endfunction
 
 
 " FUNCTION: InitRegister() {{{1
-" ======================================================================
+" ==============================================================================
 " Setups the group and highlighting. Matches are added afterward.
 
 function! highlight#init_register(reg, color)
@@ -69,7 +122,7 @@ endfunction
 
 
 " FUNCTION: ClearRegister() {{{1
-" ======================================================================
+" ==============================================================================
 " Used to clear out the 'registers' that are used to hold which values are
 " highlighted under a certain match group.
 
@@ -87,7 +140,7 @@ endfunction
 
 
 " FUNCTION: ClearAllRegisters() {{{1
-" ======================================================================
+" ==============================================================================
 
 function! highlight#clear_all_registers()
   for key in keys(g:highlight_registry)
@@ -101,20 +154,8 @@ function! highlight#clear_all_registers()
 endfunction
 
 
-" FUNCTION: CountPattern() {{{1
-" ======================================================================
-
-function! highlight#count_pattern(pattern)
-  if len(@/) > 0
-    let pos = getpos('.')
-    exe ' %s/' . a:pattern . '//gne'
-    call setpos('.', pos)
-  endif
-endfunction
-
-
 " FUNCTION: ActivateRegister() {{{1
-" ======================================================================
+" ==============================================================================
 " We must actively set the search register to perform searches as expected.
 
 function! highlight#activate_register(reg)
@@ -134,7 +175,7 @@ endfunction
 
 
 " FUNCTION: AppendToSearch(pattern) {{{1
-" ======================================================================
+" ==============================================================================
 
 function! highlight#append_to_search(reg, pattern)
   if len(a:pattern) == 0
@@ -154,21 +195,8 @@ function! highlight#append_to_search(reg, pattern)
 endfunction
 
 
-" FUNCTION: GetVisualSelection {{{1
-" ======================================================================
-
-function! highlight#get_visual_selection()
-  let [lnum1, col1] = getpos("'<")[1:2]
-  let [lnum2, col2] = getpos("'>")[1:2]
-  let lines = getline(lnum1, lnum2)
-  let lines[-1] = lines[-1][:col2 - (&selection == 'inclusive' ? 1 : 2)]
-  let lines[0] = lines[0][col1 - 1:]
-  return substitute(escape(join(lines, "\n"), '\\/.*$%~[]'), '\n', '\\n', 'g')
-endfunction
-
-
 " FUNCTION: RemoveFromSearch(pattern) {{{1
-" ======================================================================
+" ==============================================================================
 
 function! highlight#remove_from_search(reg, pattern)
   if has_key(s:registry, a:reg)
