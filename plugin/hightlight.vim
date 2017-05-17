@@ -37,13 +37,13 @@ endif
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
     \ :call highlight#append_to_search(v:register, '\<'.expand('<cword>').'\>')<Bar>
-    \  call highlight#count_last_pattern_seen()<CR>
+    \  call highlight#count_pattern('\<'.expand('<cword>').'\>')<CR>
 noremap <Plug>HRegistry_GlobalAppendToSearch
     \ :call highlight#append_to_search(v:register, expand('<cword>'))<Bar>
-    \  call highlight#count_last_pattern_seen()<CR>
+    \  call highlight#count_pattern(expand('<cword>'))<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
     \ :call highlight#append_to_search(v:register, highlight#get_visual_selection())<Bar>
-    \  call highlight#count_last_pattern_seen()<CR>
+    \  call highlight#count_pattern(highlight#get_visual_selection())<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
@@ -57,7 +57,7 @@ noremap <Plug>HRegistry_ClearRegister
 noremap <Plug>HRegistry_ActivateRegister
     \ :call highlight#activate_register(v:register)<CR>
 noremap <Plug>HRegistry_CountLastSeen
-    \ :call highlight#count_last_pattern_seen()<CR>
+    \ :call highlight#count_pattern('\<'.expand('<cword>').'\>')<CR>
 
 " Normal Mappings
 nmap <silent>  & <Plug>HRegistry_AppendToSearch

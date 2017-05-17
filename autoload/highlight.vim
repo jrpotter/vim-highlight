@@ -7,13 +7,6 @@
 " SCRIPT VARIABLES:
 " ======================================================================
 
-" s:last_pattern_seen :: String {{{2
-" ----------------------------------------------------------------------
-" The pattern last appended to a registry list.
-
-let s:last_pattern_seen = @/
-
-
 " s:active_register :: String {{{2
 " ----------------------------------------------------------------------
 " The register currently active. This defaults to the unnamed register.
@@ -108,13 +101,13 @@ function! highlight#clear_all_registers()
 endfunction
 
 
-" FUNCTION: CountLastSeen() {{{1
+" FUNCTION: CountPattern() {{{1
 " ======================================================================
 
-function! highlight#count_last_pattern_seen()
+function! highlight#count_pattern(pattern)
   if len(@/) > 0
     let pos = getpos('.')
-    exe ' %s/' . s:last_pattern_seen . '//gne'
+    exe ' %s/' . a:pattern . '//gne'
     call setpos('.', pos)
   endif
 endfunction
@@ -144,7 +137,6 @@ endfunction
 " ======================================================================
 
 function! highlight#append_to_search(reg, pattern)
-  let s:last_pattern_seen = a:pattern
   if len(a:pattern) == 0
     return
   endif
