@@ -59,12 +59,6 @@ highlight#statusline()
 
                 :set statusline+=%{highlight#statusline()}
 
-    If using airline, can pass in the name of a defined function as a
-    parameter to #statusline():
-
-    call airline#parts#define_function('foo', 'highlight#statusline("foo")')
-                     
-
 ==============================================================================
 Section 3: Commands                                       *highlight-commands*
 

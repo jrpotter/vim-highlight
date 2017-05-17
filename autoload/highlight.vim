@@ -85,26 +85,11 @@ endfunction
 " FUNCTION: Statusline() {{{1
 " ==============================================================================
 " Allow for integrating the currently highlighted section into the statusline.
-" If airline is found, synchronize the accent with the highlighting.
-" Can use as follows:
-" call airline#parts#define_function('foo', 'highlight#airline_status()')
-" call airline#parts#define_minwidth('foo', 50)
-" let g:airline_section_y = airline#section#create_right(['ffenc', 'foo'])
 
-" TODO(jrpotter): Polish and test
-" function! highlight#statusline(...)
-"   let l:group_name = highlight#get_group_name(s:active_register)
-"   " If airline is defined, this function should be called in the context of
-"   " airline#parts#define_function('foo', 'highlight#airline_status'). Thus it
-"   " should be sufficient to check that airline#parts#define_accent exists to
-"   " ensure airline is defined.
-"   if a:0 > 0 && exists('*airline#parts#define_accent')
-"     call airline#parts#define_accent(a:1, l:group_name)
-"     return airline#section#create_right([a:1])
-"   else
-"     return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
-"   endif
-" endfunction
+function! highlight#statusline(...)
+  let l:group_name = highlight#get_group_name(s:active_register)
+  return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
+endfunction
 
 
 " FUNCTION: GetGroupName(reg) {{{1
