@@ -39,34 +39,31 @@ endif
 " MAPPINGS: {{{1
 " ==============================================================================
 
-let s:word = 'expand("<cword>")'
-let s:cword = '\<expand(<cword>)\>'
-let s:vword = 'highlight#get_visual_selection()'
-
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
     \ :call highlight#append_to_search(v:register, 'c')<Bar>
-    \  call highlight#count_pattern(eval(s:cword))<CR>
+    \  call highlight#count_pattern('c')<CR>
 noremap <Plug>HRegistry_GAppendToSearch
     \ :call highlight#append_to_search(v:register, 'g')<Bar>
-    \  call highlight#count_pattern(eval(s:word))<CR>
+    \  call highlight#count_pattern('g')<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
     \ :call highlight#append_to_search(v:register, 'v')<Bar>
-    \  call highlight#count_pattern(eval(s:vword))<CR>
+    \  call highlight#count_pattern('v')<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
-    \ :call highlight#remove_from_search(v:register, '\<'.expand('<cword>').'\>')<CR>
+    \ :call highlight#remove_from_search(v:register, 'c')<CR>
 noremap <Plug>HRegistry_VisualRemoveFromSearch
-    \ :call highlight#remove_from_search(v:register, highlight#get_visual_selection())<CR>
+    \ :call highlight#remove_from_search(v:register, 'v')<CR>
 
 " Other Modifications
 noremap <Plug>HRegistry_ClearRegister
-    \ :call highlight#clear_register(v:register)<CR>
+    \ :call highlight#clear_register(v:register)<Bar>
+    \  call highlight#activate_register(v:register)<CR>
 noremap <Plug>HRegistry_ActivateRegister
     \ :call highlight#activate_register(v:register)<CR>
 noremap <Plug>HRegistry_CountLastSeen
-    \ :call highlight#count_pattern('\<'.expand('<cword>').'\>')<CR>
+    \ :call highlight#count_pattern('c')<CR>
 
 " Normal Mappings
 nmap <silent>  & <Plug>HRegistry_AppendToSearch
@@ -91,15 +88,10 @@ vmap <silent>  # &N<Plug>HRegistry_CountLastSeen
 " PROCEDURE: Commands {{1
 " ==============================================================================
 
-function! s:ClearHighlightRegistry()
-  call highlight#clear_all_registers()
-endfunction
-command ClearHighlightRegistry :call <SID>ClearHighlightRegistry()
+command ClearHighlightRegistry :call highlight#reset()
 
 
 " PROCEDURE: Initialize {{{1
 " ==============================================================================
 
-call s:ClearHighlightRegistry()
-call highlight#append_to_search(v:register, @/)
-
+call highlight#reset()

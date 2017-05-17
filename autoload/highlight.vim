@@ -1,6 +1,9 @@
 " ==============================================================================
 " File:            highlight.vim
 " Maintainer:      Joshua Potter <jrpotter2112@gmail.com>
+" Comment:         For the sake of distinguishing between vim *:reg*isters and
+"                  highlight registers used in the given script, we use register
+"                  to describe the former and h_register to describe the latter.
 "
 " ==============================================================================
 
@@ -9,15 +12,15 @@
 
 " s:active_register :: String {{{2
 " ------------------------------------------------------------------------------
-" The register currently active. This defaults to the unnamed register.
+" The h_register currently active. This defaults to the unnamed register.
 
 let s:active_register = "\""
 
 
 " s:registry :: { String : { String : Match } } {{{2
 " ------------------------------------------------------------------------------
-" The keys of the outer dictionary are any active registers (that is, before a
-" call to clear register is called). By default, this will be set to be
+" The keys of the outer dictionary are any active h_registers (that is, before a
+" call to ClearRegister is called). By default, this will be set to be
 " populated with at least g:highlight_registry once the plugin is loaded.
 "
 " The corresponding values of the outer dictionary is a key value pairing of a
@@ -32,11 +35,13 @@ let s:registry = {}
 " Convenience method used to make the mappings in plugin/highlight.vim a bit
 " easier to read through. The passed flag can be:
 "
-" c) Indicates the current word, with word boundary.
-" g) Indicates the current word, without word boundary.
-" v) Indicates the current visual selection.
+" c: Indicates the current word, with word boundary.
+" g: Indicates the current word, without word boundary.
+" v: Indicates the current visual selection.
+"
+" Throws an error otherwise.
 
-function! highlight#expand_flag(a:flag) abort
+function! highlight#expand_flag(flag) abort
   if a:flag ==# 'c'
     return '\<' . expand('<cword>') . '\>'
   elseif a:flag ==# 'g'
@@ -65,6 +70,7 @@ endfunction
 
 " FUNCTION: GetVisualSelection {{{1
 " ==============================================================================
+" Borrowed from http://stackoverflow.com/a/6271254/794380.
 
 function! highlight#get_visual_selection()
   let [lnum1, col1] = getpos("'<")[1:2]
@@ -85,25 +91,26 @@ endfunction
 " call airline#parts#define_minwidth('foo', 50)
 " let g:airline_section_y = airline#section#create_right(['ffenc', 'foo'])
 
-function! highlight#statusline(...)
-  let l:group_name = highlight#get_group_name(s:active_register)
-  " If airline is defined, this function should be called in the context of
-  " airline#parts#define_function('foo', 'highlight#airline_status'). Thus it
-  " should be sufficient to check that airline#parts#define_accent exists to
-  " ensure airline is defined.
-  if a:0 > 0 && exists('*airline#parts#define_accent')
-    call airline#parts#define_accent(a:1, l:group_name)
-    return airline#section#create_right([a:1])
-  else
-    return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
-  endif
-endfunction
+" TODO(jrpotter): Polish and test
+" function! highlight#statusline(...)
+"   let l:group_name = highlight#get_group_name(s:active_register)
+"   " If airline is defined, this function should be called in the context of
+"   " airline#parts#define_function('foo', 'highlight#airline_status'). Thus it
+"   " should be sufficient to check that airline#parts#define_accent exists to
+"   " ensure airline is defined.
+"   if a:0 > 0 && exists('*airline#parts#define_accent')
+"     call airline#parts#define_accent(a:1, l:group_name)
+"     return airline#section#create_right([a:1])
+"   else
+"     return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
+"   endif
+" endfunction
 
 
 " FUNCTION: GetGroupName(reg) {{{1
 " ==============================================================================
-" Note group names are not allowed to have special characters; they 
-" must be alphanumeric or underscores.
+" Group names are not allowed to have special characters; they must be
+" alphanumeric or underscores.
 
 function! highlight#get_group_name(reg)
   return 'highlight_registry_' . char2nr(a:reg)
@@ -112,51 +119,24 @@ endfunction
 
 " FUNCTION: InitRegister() {{{1
 " ==============================================================================
-" Setups the group and highlighting. Matches are added afterward.
+" Sets up the highlight group. This must be called before any attempts to add
+" matches to a given h_register is performed.
 
 function! highlight#init_register(reg, color)
   call highlight#clear_register(a:reg)
+  " TODO(jrpotter): Mirror current Search group
   exe 'hi ' . highlight#get_group_name(a:reg) .
       \ ' cterm=bold,underline ctermfg=' . a:color
-endfunction
-
-
-" FUNCTION: ClearRegister() {{{1
-" ==============================================================================
-" Used to clear out the 'registers' that are used to hold which values are
-" highlighted under a certain match group.
-
-function! highlight#clear_register(reg)
-  exe 'hi clear ' . highlight#get_group_name(a:reg)
-  if has_key(s:registry, a:reg)
-    for key in keys(s:registry[a:reg])
-      silent! call matchdelete(s:registry[a:reg][key])
-      unlet s:registry[a:reg][key]
-    endfor
-    unlet s:registry[a:reg]
-  endif
-  call highlight#activate_register(a:reg)
-endfunction
-
-
-" FUNCTION: ClearAllRegisters() {{{1
-" ==============================================================================
-
-function! highlight#clear_all_registers()
-  for key in keys(g:highlight_registry)
-    call highlight#init_register(key, g:highlight_registry[key])
-  endfor
-  for key in keys(s:registry)
-    if !has_key(g:highlight_registry, key)
-      call highlight#clear_register(key)
-    endif
-  endfor
+  let s:registry[a:reg] = {}
 endfunction
 
 
 " FUNCTION: ActivateRegister() {{{1
 " ==============================================================================
-" We must actively set the search register to perform searches as expected.
+" Places the contents of a highlight register into the search register and links
+" the Search highlight group to the highlight group name. Activation of an
+" h_register that has not yet been initialized is allowed - in this case, the
+" search register is simply cleared.
 
 function! highlight#activate_register(reg)
   let s:active_register = a:reg
@@ -174,40 +154,81 @@ function! highlight#activate_register(reg)
 endfunction
 
 
-" FUNCTION: AppendToSearch(pattern) {{{1
+" FUNCTION: AppendToSearch(reg, flag) {{{1
 " ==============================================================================
+" Extends the current matches of h_register reg with the pattern found once flag
+" is expanded. If the h_register specified has not yet been initialized, simply
+" create a new h_register and continue.
 
-function! highlight#append_to_search(reg, pattern)
-  if len(a:pattern) == 0
-    return
+function! highlight#append_to_search(reg, flag)
+  let l:pattern = highlight#expand_flag(a:flag)
+  if len(l:pattern) > 0
+    if !has_key(s:registry, a:reg)
+      " TODO(jrpotter): Choose color better.
+      call highlight#init_register(a:reg, 'Yellow')
+    endif
+    " Don't want to add multiple match objects into registry
+    if !has_key(s:registry[a:reg], l:pattern)
+      let s:registry[a:reg][l:pattern] = 
+          \ matchadd(highlight#get_group_name(a:reg), l:pattern)
+    endif
+    " Updates the search register
+    call highlight#activate_register(a:reg)
   endif
-  if !has_key(s:registry, a:reg)
-    " TODO(jrpotter): Change to one of least used color.
-    call highlight#init_register(a:reg, 'Yellow')
-    let s:registry[a:reg] = {}
+endfunction
+
+
+" FUNCTION: RemoveFromSearch(reg, flag) {{{1
+" ==============================================================================
+" Removes the given pattern found once flag is expanded from the passed
+" h_register reg. If the h_register will be emptied as a result of this call,
+" instead delegating to clearing out the register instead.
+
+function! highlight#remove_from_search(reg, flag)
+  let l:pattern = highlight#expand_flag(a:flag)
+  if has_key(s:registry, a:reg) && has_key(s:registry[a:reg], l:pattern)
+    if len(s:registry[a:reg] == 1)
+      call highlight#clear_register(a:reg)
+    else
+      silent! call matchdelete(s:registry[a:reg][l:pattern])
+      unlet s:registry[a:reg][l:pattern]
+    endif
   endif
-  " Don't want to add multiple match objects into registry
-  if !has_key(s:registry[a:reg], a:pattern)
-    let s:registry[a:reg][a:pattern] = 
-        \ matchadd(highlight#get_group_name(a:reg), a:pattern)
-  endif
+  " Updates the search register
   call highlight#activate_register(a:reg)
 endfunction
 
 
-" FUNCTION: RemoveFromSearch(pattern) {{{1
+" FUNCTION: ClearRegister(reg) {{{1
 " ==============================================================================
+" Used to clear out the h_register reg and potentially unlink the Search
+" highlight group.
 
-function! highlight#remove_from_search(reg, pattern)
+function! highlight#clear_register(reg)
+  exe 'hi clear ' . highlight#get_group_name(a:reg)
   if has_key(s:registry, a:reg)
-    if has_key(s:registry[a:reg], a:pattern)
-      call matchdelete(s:registry[a:reg][a:pattern])
-      unlet s:registry[a:reg][a:pattern]
-      if len(s:registry[a:reg]) == 0
-        unlet s:registry[a:reg]
-      endif
-    endif
+    for key in keys(s:registry[a:reg])
+      silent! call matchdelete(s:registry[a:reg][key])
+      unlet s:registry[a:reg][key]
+    endfor
+    unlet s:registry[a:reg]
   endif
-  call highlight#activate_register(a:reg)
+  if a:reg ==# s:active_register
+    hi! link Search NONE
+  endif
+endfunction
+
+
+" FUNCTION: Reset() {{{1
+" ==============================================================================
+" Used to reset the state of all h_register's.
+
+function! highlight#reset()
+  for key in keys(s:registry)
+    call highlight#clear_register(key)
+  endfor
+  for [key, value] in items(g:highlight_registry)
+    call highlight#init_register(key, value)
+  endfor
 endfunction
 
