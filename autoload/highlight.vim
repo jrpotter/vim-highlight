@@ -117,6 +117,33 @@ function! highlight#get_group_name(reg)
 endfunction
 
 
+" FUNCTION: GetGroupSpecification(reg) {{{1
+" ==============================================================================
+" Gets the specification created in the g:highlight_registry for a given
+" h_register. If it does not exist then we pick a 'random' option from the
+" registry. 
+
+function! highlight#get_group_specification(reg)
+  if has_key(g:highlight_registry, a:reg)
+    return g:highlight_registry[a:reg]
+  endif
+  " Since vim does not have built in random functionality, we instead look at
+  " the given line we are currently at and choose this value mod the size of the
+  " registry.
+  "
+  " TODO(jrpotter): Neovim provides Lua builtin. Perhaps use that instead?
+  let l:target = line('.') % len(g:highlight_registry)
+  let l:index = 0
+  for l:key in keys(g:highlight_registry)
+    if l:index == l:target
+      return g:highlight_registry[l:key]
+    else
+      let l:index = l:index + 1
+    endif
+  endfor
+endfunction
+
+
 " FUNCTION: InitRegister() {{{1
 " ==============================================================================
 " Sets up the highlight group. This must be called before any attempts to add
@@ -124,10 +151,53 @@ endfunction
 
 function! highlight#init_register(reg, color)
   call highlight#clear_register(a:reg)
-  " TODO(jrpotter): Mirror current Search group
-  exe 'hi ' . highlight#get_group_name(a:reg) .
-      \ ' cterm=bold,underline ctermfg=' . a:color
   let s:registry[a:reg] = {}
+
+  " Build custom highlight group with any attributes supported by cterm. If the
+  " specification has a 'group' key, use that group as a base template instead
+  " of the default 'Search' group.
+  let l:specs = highlight#get_group_specification(a:reg)
+  let l:group = get(l:specs, 'group', 'Search')
+
+  " Supported attributes for 'cterm' and 'gui', as indicated by *synIDattr*.
+  let l:attrs = [ 'fg', 'bg', 'bold', 'italic', 'underline',
+                \ 'reverse', 'inverse', 'standout', 'underline', 'undercurl']
+
+  let l:highlight=[]
+  for l:mode in ['cterm', 'gui']
+    let l:group_fg = synIDattr(synIDtrans(hlID(l:group)), 'fg', l:mode)
+    let l:group_bg = synIDattr(synIDtrans(hlID(l:group)), 'bg', l:mode)
+    let l:group_attrs = {}
+    for l:key in l:attrs[2:]
+      if synIDattr(synIDtrans(hlID(l:group)), l:key, l:mode)
+        let l:attrs[l:key] = '1'
+      endif
+    endfor
+    " First build up text formats.
+    let l:text_format = []
+    for l:key in l:attrs[2:]
+      if has_key(l:specs, l:key)
+        if l:specs[l:key] ==# '1'
+          call add(l:text_format, l:key)
+        endif
+      " If not present, then can default to highlight group.
+      elseif get(l:group_attrs, l:key, '0') ==# '1'
+        call add(l:text_format, l:key)
+      endif
+    endfor
+    " Now append the attributes for the given mode.
+    if !empty(get(l:specs, 'fg', l:group_fg))
+      call add(l:highlight, l:mode . 'fg=' . get(l:specs, 'fg', l:group_fg)) 
+    endif
+    if !empty(get(l:specs, 'bg', l:group_bg))
+      call add(l:highlight, l:mode . 'bg=' . get(l:specs, 'bg', l:group_bg)) 
+    endif
+    if !empty(l:text_format)
+      call add(l:highlight, l:mode . '=' . join(l:text_format, ','))
+    endif
+  endfor
+
+  exe 'hi' highlight#get_group_name(a:reg) join(l:highlight)
 endfunction
 
 
@@ -187,7 +257,7 @@ endfunction
 function! highlight#remove_from_search(reg, flag)
   let l:pattern = highlight#expand_flag(a:flag)
   if has_key(s:registry, a:reg) && has_key(s:registry[a:reg], l:pattern)
-    if len(s:registry[a:reg] == 1)
+    if len(s:registry[a:reg]) == 1
       call highlight#clear_register(a:reg)
     else
       silent! call matchdelete(s:registry[a:reg][l:pattern])

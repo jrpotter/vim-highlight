@@ -13,26 +13,35 @@ let g:loaded_highlight_registry = 1
 " GLOBAL VARIABLES:
 " ==============================================================================
 
-" g:highlight_registry :: { String : String } {{{2
+" g:highlight_registry :: { String : { String : String } } {{{2
 " ------------------------------------------------------------------------------
 " The following dictionary corresponds to registers 0-9 and their respective
-" colors. Adjust this to set the colors for a given register. If a register
-" isn't added to this dictionary before being attempted to be used, one of the
-" least most colors will be chosen instead. See *cterm-colors*.
-" TODO(jrpotter): Allow for better automatic color choices.
+" syntax attributes. Adjust this to set the properties for a given highlight
+" group. Allowed keys in the nested dictionary are listed in *synIDattr*, except
+" for the 'name' attribute. Unrecognized keys are simply ignored. Only 'cterm'
+" related attributes are supported (that is, gui specific attributes are not
+" supported).
+"
+" In addition, can also include a key of 'group' in the nested dictionary to
+" indicate which highlight group to default a property to. By default, this
+" group is 'Search'. Thus, key '0' could also be written as:
+" { 'fg' : 'Yellow', 'group' : 'Search', 'bold': '0' }.
+"
+" TODO(jrpotter): Consider adding support for GUI and term?
 
 if !exists('g:highlight_registry')
-  let g:highlight_registry = { '0' : 'Yellow',
-                             \ '1' : 'Blue',
-                             \ '2' : 'Red',
-                             \ '3' : 'Magenta',
-                             \ '4' : 'Green',
-                             \ '5' : 'Cyan',
-                             \ '6' : 'DarkYellow',
-                             \ '7' : 'White',
-                             \ '8' : 'Gray',
-                             \ '9' : 'Black',
-                             \ }
+  function! s:InitializeHighlightRegistry()
+    let g:highlight_registry = {}
+    let l:colors = [ 'Yellow', 'Blue', 'Red', 'Magenta', 'Green', 'Cyan',
+                   \ 'DarkYellow', 'White', 'Gray', 'Black' ]
+    let l:index = 0
+    while l:index < len(l:colors)
+      let g:highlight_registry[string(l:index)] =
+            \{ 'fg' : l:colors[l:index], 'bg' : 'none', 'bold' : '1' }
+      let l:index = l:index + 1
+    endwhile
+  endfunction
+  call s:InitializeHighlightRegistry()
 endif
 
 
@@ -88,10 +97,11 @@ vmap <silent>  # &N<Plug>HRegistry_CountLastSeen
 " PROCEDURE: Commands {{1
 " ==============================================================================
 
-command ClearHighlightRegistry :call highlight#reset()
+command ResetHighlightRegistry :call highlight#reset()
 
 
 " PROCEDURE: Initialize {{{1
 " ==============================================================================
 
 call highlight#reset()
+

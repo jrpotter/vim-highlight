@@ -5,6 +5,7 @@ CONTENTS                                                  *highlight-contents*
 
 1. Usage ................................................... |highlight-usage|
 2. Statusline ......................................... |highlight-statusline|
+3. Commands ............................................. |highlight-commands|
 
 ==============================================================================
 Section 1: Usage                                             *highlight-usage*
@@ -63,5 +64,13 @@ highlight#statusline()
 
     call airline#parts#define_function('foo', 'highlight#statusline("foo")')
                      
+
+==============================================================================
+Section 3: Commands                                       *highlight-commands*
+
+ResetHighlightRegistry
+
+    Removes all custom highlights done. Reverts back to when the plugin was
+    first loaded.
 
 vim:tw=78:ts=8:ft=help:norl:
