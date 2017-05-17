@@ -1,66 +1,67 @@
 *highlight-registry* functionality of the highlight registry
 
-=============================================================================
-CONTENTS                                                 *highlight-contents*
+==============================================================================
+CONTENTS                                                  *highlight-contents*
 
-1. Usage .................................................. |highlight-usage|
-2. Variables .......................................... |highlight-variables|
+1. Usage ................................................... |highlight-usage|
+2. Statusline ......................................... |highlight-statusline|
 
-=============================================================================
-Section 1: Usage                                            *highlight-usage*
+==============================================================================
+Section 1: Usage                                             *highlight-usage*
 
-["x]&                               Highlights the <cword> under the cursor
-                                    into register x.
+["x]&                Highlights the <cword> under the cursor into register x.
 
-["x]y&                              Sets the search register to the contents of
-                                    register x.
+["x]y&               Sets the search register to the contents of register x.
 
-["x]d&                              Removes the <cword> from register x.
+["x]d&               Removes the <cword> from register x.
 
-["x]c&                              Emptys register x. No patterns previously
-                                    belonging inside this register will be
-                                    highlighted.
+["x]c&               Emptys register x. No patterns previously belonging
+                     inside this register will be highlighted.
 
-["x]*                               Highlights the <cword> under the cursor
-                                    into register x. Moves to the next
-                                    occurrence of the <cword>.
+["x]*                Highlights the <cword> under the cursor into register x.
+                     Moves to the next occurrence of the <cword>.
 
-["x]#                               Highlights the <cword> under the cursor
-                                    into register x. Moves to the previous
-                                    occurrence of the <cword>.
+["x]#                Highlights the <cword> under the cursor into register x.
+                     Moves to the previous occurrence of the <cword>.
 
-["x]g&                              Highlights the <cword> under the cursor, but
-                                    without forcing any highlighted occurrences
-                                    to be a word. That is, if the selected
-                                    <cword> is a substring of any text in the
-                                    current buffer, the substring will also be
-                                    highlighted.
+["x]g&               Highlights the <cword> under the cursor, but without
+                     forcing any highlighted occurrences to be a word. That
+                     is, if the selected <cword> is a substring of any text
+                     in the current buffer, the substring will also be
+                     highlighted.
 
-["x]g*                              Works like ["x]g& but also moves to the next
-                                    occurrence of the pattern.
+["x]g*               Works like ["x]g& but also moves to the next occurrence
+                     of the pattern.
 
-["x]g#                              Works like ["x]g& but also moves to the
-                                    previous occurrence of the pattern.
+["x]g#               Works like ["x]g& but also moves to the previous
+                     occurrence of the pattern.
 
-v_["x]&                             Note the v indicates visual mode. Works like
-                                    g&, but with the visually selected region.
+v_["x]&              Note the v indicates visual mode. Works like g&, but
+                     with the visually selected region.
 
-v_["x]*                             Note the v indicates visual mode. Works like
-                                    g*, but with the visually selected region.
+v_["x]*              Note the v indicates visual mode. Works like g*, but
+                     with the visually selected region.
 
-v_["x]#                             Note the v indicates visual mode. Works like
-                                    g#, but with the visually selected region.
+v_["x]#              Note the v indicates visual mode. Works like g#, but
+                     with the visually selected region.
 
-v_["x]d&                            Note the v indicates visual mode. Removes
-                                    the visually selected region from register
-                                    x.
+v_["x]d&             Note the v indicates visual mode.  Removes the visually
+                     selected region from register x.
 
-=============================================================================
-Section 2: Variables                                    *highlight-variables*
+==============================================================================
+Section 2: Statusline                                   *highlight-statusline*
 
-g:highlight_register_default_color
+highlight#statusline()
 
-                    Default color used when initializing an unused register.
+    Use the following function to append the currently active highlight
+    register into the statusline. This can be done as:
 
+                :set statusline+=%{highlight#statusline()}
+
+    If using airline, can pass in the name of a defined function as a
+    parameter to #statusline():
+
+    call airline#parts#define_function('foo', 'highlight#statusline("foo")')
+                     
 
 vim:tw=78:ts=8:ft=help:norl:
