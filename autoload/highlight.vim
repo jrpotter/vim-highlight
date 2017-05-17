@@ -88,8 +88,7 @@ endfunction
 " Mirrors the look of a given prompted highlight group (e.g. :hi Search)
 
 function! highlight#statusline()
-  let l:stl = '\' . s:active_register
-  return l:stl . l:stl . l:stl
+  return repeat(s:active_register, 3)
 endfunction
 
 
@@ -202,7 +201,9 @@ function! highlight#activate_register(reg)
       let search = search . key . '\|'
     endfor
     let @/ = search[:-3]
-    exe 'hi! link Search ' . highlight#get_group_name(a:reg)
+    for l:group in g:highlight_linkage
+      exe 'hi! link' l:group highlight#get_group_name(a:reg)
+    endfor
     set hlsearch
   else
     let @/ = ''

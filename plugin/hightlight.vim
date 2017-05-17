@@ -45,6 +45,19 @@ if !exists('g:highlight_registry')
 endif
 
 
+" g:highlight_linkage :: [ String ] {{{2
+" ------------------------------------------------------------------------------
+"  Provides support for adding linkage to other accent groups if desired. For
+"  instance, airline's statusline uses highlight group __accent_Search if using
+"  Search, and want to keep this updated if possible.
+
+if !exists('g:highlight_linkage')
+  let g:highlight_linkage = ['Search']
+else
+  call add(g:highlight_linkage, 'Search')
+endif
+
+
 " MAPPINGS: {{{1
 " ==============================================================================
 
