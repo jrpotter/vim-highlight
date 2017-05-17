@@ -59,6 +59,11 @@ highlight#statusline()
 
                 :set statusline+=%{highlight#statusline()}
 
+    If you would like the statusline to be highlighted the same as the active
+    h_register, use:
+
+            :set statusline+=%#Search#%{highlight#statusline()}%*
+
 ==============================================================================
 Section 3: Commands                                       *highlight-commands*
 

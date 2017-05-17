@@ -85,10 +85,11 @@ endfunction
 " FUNCTION: Statusline() {{{1
 " ==============================================================================
 " Allow for integrating the currently highlighted section into the statusline.
+" Mirrors the look of a given prompted highlight group (e.g. :hi Search)
 
-function! highlight#statusline(...)
-  let l:group_name = highlight#get_group_name(s:active_register)
-  return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
+function! highlight#statusline()
+  let l:stl = '\' . s:active_register
+  return l:stl . l:stl . l:stl
 endfunction
 
 
