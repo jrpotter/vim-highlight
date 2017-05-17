@@ -13,29 +13,21 @@ let g:loaded_highlight_registry = 1
 " GLOBAL VARIABLES:
 " ======================================================================
 
-" g:highlight_register_default_color :: String {{{2
-" ----------------------------------------------------------------------
-
-if !exists('g:highlight_register_default_color')
-  let g:highlight_register_default_color = 'Yellow'
-endif
-
-
 " g:highlight_registry :: { String : String } {{{2
 " ----------------------------------------------------------------------
 
 if !exists('g:highlight_registry')
-    let g:highlight_registry = { '0' : 'Yellow',
-                               \ '1' : 'Blue',
-                               \ '2' : 'Red',
-                               \ '3' : 'Magenta',
-                               \ '4' : 'Green',
-                               \ '5' : 'Cyan',
-                               \ '6' : 'DarkYellow',
-                               \ '7' : 'White',
-                               \ '8' : 'Gray',
-                               \ '9' : 'Black',
-                               \ }
+  let g:highlight_registry = { '0' : 'Yellow',
+                             \ '1' : 'Blue',
+                             \ '2' : 'Red',
+                             \ '3' : 'Magenta',
+                             \ '4' : 'Green',
+                             \ '5' : 'Cyan',
+                             \ '6' : 'DarkYellow',
+                             \ '7' : 'White',
+                             \ '8' : 'Gray',
+                             \ '9' : 'Black',
+                             \ }
 endif
 
 
@@ -45,13 +37,13 @@ endif
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
     \ :call highlight#append_to_search(v:register, '\<'.expand('<cword>').'\>')<Bar>
-    \  call highlight#count_last_seen()<CR>
+    \  call highlight#count_last_pattern_seen()<CR>
 noremap <Plug>HRegistry_GlobalAppendToSearch
     \ :call highlight#append_to_search(v:register, expand('<cword>'))<Bar>
-    \  call highlight#count_last_seen()<CR>
+    \  call highlight#count_last_pattern_seen()<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
     \ :call highlight#append_to_search(v:register, highlight#get_visual_selection())<Bar>
-    \  call highlight#count_last_seen()<CR>
+    \  call highlight#count_last_pattern_seen()<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
@@ -65,7 +57,7 @@ noremap <Plug>HRegistry_ClearRegister
 noremap <Plug>HRegistry_ActivateRegister
     \ :call highlight#activate_register(v:register)<CR>
 noremap <Plug>HRegistry_CountLastSeen
-    \ :call highlight#count_last_seen()<CR>
+    \ :call highlight#count_last_pattern_seen()<CR>
 
 " Normal Mappings
 nmap <silent>  & <Plug>HRegistry_AppendToSearch

@@ -7,19 +7,18 @@
 " SCRIPT VARIABLES:
 " ======================================================================
 
-" s:last_seen :: String {{{2
+" s:last_pattern_seen :: String {{{2
 " ----------------------------------------------------------------------
 " The pattern last appended to a registry list.
 
-let s:last_seen = @/
+let s:last_pattern_seen = @/
 
 
-" s:registry_colors :: { String : String } {{{2
+" s:active_register :: String {{{2
 " ----------------------------------------------------------------------
-" Mapping between registry name and color that should be used for
-" highlighting.
+" The register currently active. This defaults to the unnamed register.
 
-let s:registry_colors = {}
+let s:active_register = "\""
 
 
 " s:registry :: { String : { String : Match } } {{{2
@@ -28,6 +27,31 @@ let s:registry_colors = {}
 " word being matched, paired with the actual match object.
 
 let s:registry = {}
+
+
+" FUNCTION: Statusline() {{{1
+" ======================================================================
+" Allow for integrating the currently highlighted section into the statusline.
+" If airline is found, synchronize the accent with the highlighting.
+" Can use as follows:
+" call airline#parts#define_function('foo', 'highlight#airline_status')
+" call airline#parts#define_minwidth('foo', 50)
+" call airline#parts#define_condition('foo', 'getcwd() =~ "work_dir"')
+" let g:airline_section_y = airline#section#create_right(['ffenc', 'foo'])
+
+function! highlight#statusline(...)
+  let l:group_name = highlight#get_group_name(s:active_register)
+  " If airline is defined, this function should be called in the context of
+  " airline#parts#define_function('foo', 'highlight#airline_status'). Thus it
+  " should be sufficient to check that airline#parts#define_accent exists to
+  " ensure airline is defined.
+  if a:0 > 0 && exists('*airline#parts#define_accent')
+    call airline#parts#define_accent(a:1, l:group_name)
+    return airline#section#create_right([a:1])
+  else
+    return '%#' . l:group_name . '#xxx (" . s:active_register . ")%*'
+  endif
+endfunction
 
 
 " FUNCTION: GetGroupName(reg) {{{1
@@ -46,7 +70,6 @@ endfunction
 
 function! highlight#init_register(reg, color)
   call highlight#clear_register(a:reg)
-  let s:registry_colors[a:reg] = a:color
   exe 'hi ' . highlight#get_group_name(a:reg) .
       \ ' cterm=bold,underline ctermfg=' . a:color
 endfunction
@@ -59,12 +82,9 @@ endfunction
 
 function! highlight#clear_register(reg)
   exe 'hi clear ' . highlight#get_group_name(a:reg)
-  if has_key(s:registry_colors, a:reg)
-    unlet s:registry_colors[a:reg]
-  endif
   if has_key(s:registry, a:reg)
     for key in keys(s:registry[a:reg])
-      call matchdelete(s:registry[a:reg][key])
+      silent! call matchdelete(s:registry[a:reg][key])
       unlet s:registry[a:reg][key]
     endfor
     unlet s:registry[a:reg]
@@ -91,10 +111,10 @@ endfunction
 " FUNCTION: CountLastSeen() {{{1
 " ======================================================================
 
-function! highlight#count_last_seen()
+function! highlight#count_last_pattern_seen()
   if len(@/) > 0
     let pos = getpos('.')
-    exe ' %s/' . s:last_seen . '//gne'
+    exe ' %s/' . s:last_pattern_seen . '//gne'
     call setpos('.', pos)
   endif
 endfunction
@@ -105,14 +125,14 @@ endfunction
 " We must actively set the search register to perform searches as expected.
 
 function! highlight#activate_register(reg)
-  if has_key(s:registry, a:reg) && has_key(s:registry_colors, a:reg)
+  let s:active_register = a:reg
+  if has_key(s:registry, a:reg)
     let search = ''
     for key in keys(s:registry[a:reg])
       let search = search . key . '\|'
     endfor
     let @/ = search[:-3]
-    exe 'hi Search cterm=bold,underline ctermbg=none ctermfg=' .
-        \ s:registry_colors[a:reg]
+    exe 'hi! link Search ' . highlight#get_group_name(a:reg)
     set hlsearch
   else
     let @/ = ''
@@ -124,14 +144,13 @@ endfunction
 " ======================================================================
 
 function! highlight#append_to_search(reg, pattern)
-  let s:last_seen = a:pattern
+  let s:last_pattern_seen = a:pattern
   if len(a:pattern) == 0
     return
   endif
-  if !has_key(s:registry_colors, a:reg)
-    call highlight#init_register(a:reg, g:highlight_register_default_color)
-  endif
   if !has_key(s:registry, a:reg)
+    " TODO(jrpotter): Change to one of least used color.
+    call highlight#init_register(a:reg, 'Yellow')
     let s:registry[a:reg] = {}
   endif
   " Don't want to add multiple match objects into registry
