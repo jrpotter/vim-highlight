@@ -30,6 +30,44 @@ let s:active_register = "\""
 let s:registry = {}
 
 
+" FUNCTION: ExpandRegister(reg) {{{1
+" ==============================================================================
+" Convenience method to determine which register is being currently used.
+" The unnamed register defaults to the last used register to avoid having to
+" constantly prefix registration. This can be changed by setting the value of
+" g:persist_unnamed_register to 1.
+
+function! highlight#expand_register(reg)
+  if !g:persist_unnamed_register && a:reg ==# '"'
+    return s:active_register
+  endif
+  return a:reg
+endfunction
+
+
+" FUNCTION: ExpandFlag(flag) {{{1
+" ==============================================================================
+" Convenience method used to make the mappings in plugin/highlight.vim a bit
+" easier to read through. The passed flag can be:
+"
+" c: Indicates the current word, with word boundary.
+" g: Indicates the current word, without word boundary.
+" v: Indicates the current visual selection.
+"
+" Throws an error otherwise.
+
+function! highlight#expand_flag(flag) abort
+  if a:flag ==# 'c'
+    return '\<' . expand('<cword>') . '\>'
+  elseif a:flag ==# 'g'
+    return expand('<cword>')
+  elseif a:flag ==# 'v'
+    return highlight#get_visual_selection()
+  endif
+  throw 'Could not expand passed flag: ' . a:flag
+endfunction
+
+
 " FUNCTION: CountPattern(pattern) {{{1
 " ==============================================================================
 " Convenience method used to display the number of times the passed pattern has
