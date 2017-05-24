@@ -4,8 +4,9 @@
 CONTENTS                                                  *highlight-contents*
 
 1. Usage ................................................... |highlight-usage|
-2. Statusline ......................................... |highlight-statusline|
-3. Commands ............................................. |highlight-commands|
+2. Variables ........................................... |highlight-variables|
+3. Statusline ......................................... |highlight-statusline|
+4. Commands ............................................. |highlight-commands|
 
 ==============================================================================
 Section 1: Usage                                             *highlight-usage*
@@ -50,7 +51,25 @@ v_["x]d&             Note the v indicates visual mode.  Removes the visually
                      selected region from register x.
 
 ==============================================================================
-Section 2: Statusline                                   *highlight-statusline*
+Section 2: Statusline                                    *highlight-variables*
+
+g:highlight_registry
+
+    Corresponds to registers and their respective syntax attributes. Adjust this
+    to set the properties for a given highlight group. Allowed keys in the
+    nested dictionary are listed in *synIDattr*, except for the 'name'
+    attribute.  Unrecognized keys are simply ignored. Only 'cterm' related
+    attributes are supported (that is, gui specific attributes are not
+    supported).
+
+g:persist_unnamed_register
+
+    Determines how to manage the unnamed register '"'. If set to false, we
+    regard the unnamed register to implicitly imply use of the last activated
+    register.
+
+==============================================================================
+Section 3: Statusline                                   *highlight-statusline*
 
 highlight#statusline()
 
@@ -65,7 +84,7 @@ highlight#statusline()
             :set statusline+=%#Search#%{highlight#statusline()}%*
 
 ==============================================================================
-Section 3: Commands                                       *highlight-commands*
+Section 4: Commands                                       *highlight-commands*
 
 ResetHighlightRegistry
 
