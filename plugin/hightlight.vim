@@ -45,6 +45,16 @@ if !exists('g:highlight_registry')
 endif
 
 
+" g:persist_unnamed_register :: Boolean {{{2
+" ------------------------------------------------------------------------------
+" Determines how to manage the unnamed register '"'. If set to false, we regard
+" the unnamed register to implicitly imply use of the last activated register.
+
+if !exists('g:persist_unnamed_register')
+  let g:persist_unnamed_register = 0
+endif
+
+
 " MAPPINGS: {{{1
 " ==============================================================================
 
