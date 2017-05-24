@@ -60,27 +60,32 @@ endif
 
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
-    \ :call highlight#append_to_search(highlight#expand_register(v:register), highlight#expand_flag('c'))<Bar>
-    \  call highlight#count_pattern(highlight#expand_flag('c'))<CR>
+    \ :call highlight#append_to_search(highlight#expand_reg(v:register),
+    \                                  highlight#expand_flag('c'))
+    \ <Bar>call highlight#count_pattern(highlight#expand_flag('c'))<CR>
 noremap <Plug>HRegistry_GAppendToSearch
-    \ :call highlight#append_to_search(highlight#expand_register(v:register), highlight#expand_flag('g'))<Bar>
-    \  call highlight#count_pattern(highlight#expand_flag('g'))<CR>
+    \ :call highlight#append_to_search(highlight#expand_reg(v:register),
+    \                                  highlight#expand_flag('g'))
+    \ <Bar>call highlight#count_pattern(highlight#expand_flag('g'))<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
-    \ :call highlight#append_to_search(highlight#expand_register(v:register), highlight#expand_flag('v'))<Bar>
-    \  call highlight#count_pattern(highlight#expand_flag('v'))<CR>
+    \ :call highlight#append_to_search(highlight#expand_reg(v:register),
+    \                                  highlight#expand_flag('v'))
+    \ <Bar>call highlight#count_pattern(highlight#expand_flag('v'))<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
-    \ :call highlight#remove_from_search(highlight#expand_register(v:register), highlight#expand_flag('c'))<CR>
+    \ :call highlight#remove_from_search(highlight#expand_reg(v:register),
+    \                                    highlight#expand_flag('c'))<CR>
 noremap <Plug>HRegistry_VisualRemoveFromSearch
-    \ :call highlight#remove_from_search(highlight#expand_register(v:register), highlight#expand_flag('v'))<CR>
+    \ :call highlight#remove_from_search(highlight#expand_reg(v:register),
+    \                                    highlight#expand_flag('v'))<CR>
 
 " Other Modifications
 noremap <Plug>HRegistry_ClearRegister
-    \ :call highlight#clear_register(highlight#expand_register(v:register))<Bar>
-    \  call highlight#activate_register(highlight#expand_register(v:register))<CR>
+    \ :call highlight#clear_register(highlight#expand_reg(v:register))<Bar>
+    \  call highlight#activate_register(highlight#expand_reg(v:register))<CR>
 noremap <Plug>HRegistry_ActivateRegister
-    \ :call highlight#activate_register(highlight#expand_register(v:register))<CR>
+    \ :call highlight#activate_register(highlight#expand_reg(v:register))<CR>
 noremap <Plug>HRegistry_CountLastSeen
     \ :call highlight#count_pattern(highlight#expand_flag('c'))<CR>
 

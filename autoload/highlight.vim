@@ -14,7 +14,7 @@
 " ------------------------------------------------------------------------------
 " The h_register currently active. This defaults to the unnamed register.
 
-let s:active_register = "\""
+let s:active_register = "1"
 
 
 " s:registry :: { String : { String : Match } } {{{2
@@ -37,7 +37,7 @@ let s:registry = {}
 " constantly prefix registration. This can be changed by setting the value of
 " g:persist_unnamed_register to 1.
 
-function! highlight#expand_register(reg)
+function! highlight#expand_reg(reg)
   if !g:persist_unnamed_register && a:reg ==# '"'
     return s:active_register
   endif
