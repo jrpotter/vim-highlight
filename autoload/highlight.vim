@@ -30,54 +30,15 @@ let s:active_register = "\""
 let s:registry = {}
 
 
-" FUNCTION: ExpandRegister(reg) {{{1
-" ==============================================================================
-" Convenience method to determine which register is being currently used.
-" The unnamed register defaults to the last used register to avoid having to
-" constantly prefix registration. This can be changed by setting the value of
-" g:persist_unnamed_register to 1.
-
-function! highlight#expand_register(reg)
-  if !g:persist_unnamed_register && a:reg ==# '"'
-    return s:active_register
-  endif
-  return a:reg
-endfunction
-
-
-" FUNCTION: ExpandFlag(flag) {{{1
-" ==============================================================================
-" Convenience method used to make the mappings in plugin/highlight.vim a bit
-" easier to read through. The passed flag can be:
-"
-" c: Indicates the current word, with word boundary.
-" g: Indicates the current word, without word boundary.
-" v: Indicates the current visual selection.
-"
-" Throws an error otherwise.
-
-function! highlight#expand_flag(flag) abort
-  if a:flag ==# 'c'
-    return '\<' . expand('<cword>') . '\>'
-  elseif a:flag ==# 'g'
-    return expand('<cword>')
-  elseif a:flag ==# 'v'
-    return highlight#get_visual_selection()
-  endif
-  throw 'Could not expand passed flag: ' . a:flag
-endfunction
-
-
-" FUNCTION: CountPattern(flag) {{{1
+" FUNCTION: CountPattern(pattern) {{{1
 " ==============================================================================
 " Convenience method used to display the number of times the passed pattern has
 " occurred in the current buffer.
 
-function! highlight#count_pattern(flag)
-  let l:pattern = highlight#expand_flag(a:flag)
+function! highlight#count_pattern(pattern)
   if len(@/) > 0
     let pos = getpos('.')
-    exe ' %s/' . l:pattern . '//gne'
+    exe ' %s/' . a:pattern . '//gne'
     call setpos('.', pos)
   endif
 endfunction
@@ -224,23 +185,22 @@ function! highlight#activate_register(reg)
 endfunction
 
 
-" FUNCTION: AppendToSearch(reg, flag) {{{1
+" FUNCTION: AppendToSearch(reg, pattern) {{{1
 " ==============================================================================
 " Extends the current matches of h_register reg with the pattern found once flag
 " is expanded. If the h_register specified has not yet been initialized, simply
 " create a new h_register and continue.
 
-function! highlight#append_to_search(reg, flag)
-  let l:pattern = highlight#expand_flag(a:flag)
-  if len(l:pattern) > 0
+function! highlight#append_to_search(reg, pattern)
+  if len(a:pattern) > 0
     if !has_key(s:registry, a:reg)
       " TODO(jrpotter): Choose color better.
       call highlight#init_register(a:reg, 'Yellow')
     endif
     " Don't want to add multiple match objects into registry
-    if !has_key(s:registry[a:reg], l:pattern)
-      let s:registry[a:reg][l:pattern] = 
-          \ matchadd(highlight#get_group_name(a:reg), l:pattern)
+    if !has_key(s:registry[a:reg], a:pattern)
+      let s:registry[a:reg][a:pattern] = 
+          \ matchadd(highlight#get_group_name(a:reg), a:pattern)
     endif
     " Updates the search register
     call highlight#activate_register(a:reg)
@@ -248,20 +208,19 @@ function! highlight#append_to_search(reg, flag)
 endfunction
 
 
-" FUNCTION: RemoveFromSearch(reg, flag) {{{1
+" FUNCTION: RemoveFromSearch(reg, pattern) {{{1
 " ==============================================================================
 " Removes the given pattern found once flag is expanded from the passed
 " h_register reg. If the h_register will be emptied as a result of this call,
 " instead delegating to clearing out the register instead.
 
-function! highlight#remove_from_search(reg, flag)
-  let l:pattern = highlight#expand_flag(a:flag)
-  if has_key(s:registry, a:reg) && has_key(s:registry[a:reg], l:pattern)
+function! highlight#remove_from_search(reg, pattern)
+  if has_key(s:registry, a:reg) && has_key(s:registry[a:reg], a:pattern)
     if len(s:registry[a:reg]) == 1
       call highlight#clear_register(a:reg)
     else
-      silent! call matchdelete(s:registry[a:reg][l:pattern])
-      unlet s:registry[a:reg][l:pattern]
+      silent! call matchdelete(s:registry[a:reg][a:pattern])
+      unlet s:registry[a:reg][a:pattern]
     endif
   endif
   " Updates the search register

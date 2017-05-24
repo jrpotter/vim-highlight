@@ -55,34 +55,72 @@ if !exists('g:persist_unnamed_register')
 endif
 
 
+" FUNCTION: ExpandRegister(reg) {{{1
+" ==============================================================================
+" Convenience method to determine which register is being currently used.
+" The unnamed register defaults to the last used register to avoid having to
+" constantly prefix registration. This can be changed by setting the value of
+" g:persist_unnamed_register to 1.
+
+function! s:ExpandRegister(reg)
+  if !g:persist_unnamed_register && a:reg ==# '"'
+    return s:active_register
+  endif
+  return a:reg
+endfunction
+
+
+" FUNCTION: ExpandFlag(flag) {{{1
+" ==============================================================================
+" Convenience method used to make the mappings in plugin/highlight.vim a bit
+" easier to read through. The passed flag can be:
+"
+" c: Indicates the current word, with word boundary.
+" g: Indicates the current word, without word boundary.
+" v: Indicates the current visual selection.
+"
+" Throws an error otherwise.
+
+function! s:ExpandFlag(flag) abort
+  if a:flag ==# 'c'
+    return '\<' . expand('<cword>') . '\>'
+  elseif a:flag ==# 'g'
+    return expand('<cword>')
+  elseif a:flag ==# 'v'
+    return highlight#get_visual_selection()
+  endif
+  throw 'Could not expand passed flag: ' . a:flag
+endfunction
+
+
 " MAPPINGS: {{{1
 " ==============================================================================
 
 " Append Searches
 noremap <Plug>HRegistry_AppendToSearch
-    \ :call highlight#append_to_search(v:register, 'c')<Bar>
-    \  call highlight#count_pattern('c')<CR>
+    \ :call highlight#append_to_search(s:ExpandRegister(v:register), s:ExpandFlag('c'))<Bar>
+    \  call highlight#count_pattern(s:ExpandFlag('c'))<CR>
 noremap <Plug>HRegistry_GAppendToSearch
-    \ :call highlight#append_to_search(v:register, 'g')<Bar>
-    \  call highlight#count_pattern('g')<CR>
+    \ :call highlight#append_to_search(s:ExpandRegister(v:register), s:ExpandFlag('g'))<Bar>
+    \  call highlight#count_pattern(s:ExpandFlag('g'))<CR>
 noremap <Plug>HRegistry_VisualAppendToSearch
-    \ :call highlight#append_to_search(v:register, 'v')<Bar>
-    \  call highlight#count_pattern('v')<CR>
+    \ :call highlight#append_to_search(s:ExpandRegister(v:register), s:ExpandFlag('v'))<Bar>
+    \  call highlight#count_pattern(s:ExpandFlag('v'))<CR>
 
 " Remove Searches
 noremap <Plug>HRegistry_RemoveFromSearch
-    \ :call highlight#remove_from_search(v:register, 'c')<CR>
+    \ :call highlight#remove_from_search(s:ExpandRegister(v:register), s:ExpandFlag('c'))<CR>
 noremap <Plug>HRegistry_VisualRemoveFromSearch
-    \ :call highlight#remove_from_search(v:register, 'v')<CR>
+    \ :call highlight#remove_from_search(s:ExpandRegister(v:register), s:ExpandFlag('v'))<CR>
 
 " Other Modifications
 noremap <Plug>HRegistry_ClearRegister
-    \ :call highlight#clear_register(v:register)<Bar>
-    \  call highlight#activate_register(v:register)<CR>
+    \ :call highlight#clear_register(s:ExpandRegister(v:register))<Bar>
+    \  call highlight#activate_register(s:ExpandRegister(v:register))<CR>
 noremap <Plug>HRegistry_ActivateRegister
-    \ :call highlight#activate_register(v:register)<CR>
+    \ :call highlight#activate_register(s:ExpandRegister(v:register))<CR>
 noremap <Plug>HRegistry_CountLastSeen
-    \ :call highlight#count_pattern('c')<CR>
+    \ :call highlight#count_pattern(s:ExpandFlag('c'))<CR>
 
 " Normal Mappings
 nmap <silent>  & <Plug>HRegistry_AppendToSearch
