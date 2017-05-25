@@ -112,7 +112,7 @@ endfunction
 " alphanumeric or underscores.
 
 function! highlight#get_group_name(reg)
-  return 'highlight_registry_' . char2nr(a:reg)
+  return g:highlight_register_prefix . char2nr(a:reg)
 endfunction
 
 
@@ -162,7 +162,7 @@ function! highlight#init_register(reg, color)
   let l:attrs = [ 'fg', 'bg', 'bold', 'italic', 'underline',
                 \ 'reverse', 'inverse', 'standout', 'underline', 'undercurl']
 
-  let l:highlight=[]
+  let l:highlight = []
   for l:mode in ['cterm', 'gui']
     let l:group_fg = synIDattr(synIDtrans(hlID(l:group)), 'fg', l:mode)
     let l:group_bg = synIDattr(synIDtrans(hlID(l:group)), 'bg', l:mode)
@@ -215,7 +215,8 @@ function! highlight#activate_register(reg)
       let search = search . key . '\|'
     endfor
     let @/ = search[:-3]
-    exe 'hi! link Search' highlight#get_group_name(a:reg)
+    exe 'hi! link Search' g:highlight_register_prefix
+    exe 'hi! link' g:highlight_register_prefix highlight#get_group_name(a:reg)
     set hlsearch
   else
     let @/ = ''
@@ -272,7 +273,7 @@ endfunction
 " highlight group.
 
 function! highlight#clear_register(reg)
-  exe 'hi clear ' . highlight#get_group_name(a:reg)
+  exe 'hi clear' highlight#get_group_name(a:reg)
   if has_key(s:registry, a:reg)
     for key in keys(s:registry[a:reg])
       silent! call matchdelete(s:registry[a:reg][key])
@@ -282,6 +283,7 @@ function! highlight#clear_register(reg)
   endif
   if a:reg ==# s:active_register
     hi! link Search NONE
+    exe 'hi! link' g:highlight_register_prefix 'NONE'
   endif
 endfunction
 
