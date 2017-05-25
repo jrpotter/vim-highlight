@@ -45,13 +45,24 @@ if !exists('g:highlight_registry')
 endif
 
 
-" g:persist_unnamed_register :: Boolean {{{2
+" g:highlight_persist_unnamed_register :: Boolean {{{2
 " ------------------------------------------------------------------------------
 " Determines how to manage the unnamed register '"'. If set to false, we regard
 " the unnamed register to implicitly imply use of the last activated register.
 
-if !exists('g:persist_unnamed_register')
-  let g:persist_unnamed_register = 0
+if !exists('g:highlight_persist_unnamed_register')
+  let g:highlight_persist_unnamed_register = 0
+endif
+
+
+" g:highlight_register_prefix :: String {{{2
+" ------------------------------------------------------------------------------
+" Prefix used for group names and for link between Search highlight group and
+" the highlight registries. That is, hi link Search {g:highlight_register_prefix}
+" and hi link {g:highlight_register_prefix} {active search register}.
+
+if !exists('g:highlight_register_prefix')
+  let g:highlight_register_prefix = 'HighlightRegister'
 endif
 
 
