@@ -12,7 +12,7 @@
 
 " s:active_register :: String {{{2
 " ------------------------------------------------------------------------------
-" The h_register currently active. This defaults to the unnamed register.
+" The h_register currently active. This defaults to register '1'.
 
 let s:active_register = "1"
 
@@ -160,7 +160,7 @@ function! highlight#init_register(reg, color)
 
   " Supported attributes for 'cterm' and 'gui', as indicated by *synIDattr*.
   let l:attrs = [ 'fg', 'bg', 'bold', 'italic', 'underline',
-                \ 'reverse', 'inverse', 'standout', 'underline', 'undercurl']
+                \ 'reverse', 'inverse', 'standout', 'undercurl']
 
   let l:highlight = []
   for l:mode in ['cterm', 'gui']
