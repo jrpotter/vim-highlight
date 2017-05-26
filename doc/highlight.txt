@@ -68,6 +68,14 @@ g:persist_unnamed_register
     regard the unnamed register to implicitly imply use of the last activated
     register.
 
+g:highlight_register_prefix
+
+    Prefix used in naming the generating highlight register highlight groups.
+
+g:highlight_register_prefix_link
+
+    Default link the highligh group g:highlight_register_prefix points to.
+
 ==============================================================================
 Section 3: Statusline                                   *highlight-statusline*
 

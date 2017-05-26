@@ -283,7 +283,7 @@ function! highlight#clear_register(reg)
   endif
   if a:reg ==# s:active_register
     hi! link Search NONE
-    exe 'hi! link' g:highlight_register_prefix 'NONE'
+    exe 'hi! link' g:highlight_register_prefix g:highlight_register_prefix_link
   endif
 endfunction
 

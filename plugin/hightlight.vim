@@ -32,7 +32,7 @@ let g:loaded_highlight_registry = 1
 if !exists('g:highlight_registry')
   function! s:InitializeHighlightRegistry()
     let g:highlight_registry = {}
-    let l:colors = [ 'Yellow', 'Blue', 'Red', 'Magenta', 'Green', 'Cyan',
+    let l:colors = [ 'Yellow', 'LightBlue', 'Red', 'Magenta', 'Green', 'Cyan',
                    \ 'DarkYellow', 'White', 'Gray', 'Black' ]
     let l:index = 0
     while l:index < len(l:colors)
@@ -58,11 +58,23 @@ endif
 " g:highlight_register_prefix :: String {{{2
 " ------------------------------------------------------------------------------
 " Prefix used for group names and for link between Search highlight group and
-" the highlight registries. That is, hi link Search {g:highlight_register_prefix}
-" and hi link {g:highlight_register_prefix} {active search register}.
+" the highlight registries. That is,
+" hi link Search {g:highlight_register_prefix}
+" and
+" hi link {g:highlight_register_prefix} {active search register}.
 
 if !exists('g:highlight_register_prefix')
   let g:highlight_register_prefix = 'HighlightRegister'
+endif
+
+
+" g:highlight_register_prefix_link :: String
+" ------------------------------------------------------------------------------
+" Name of the highlight group the highlight_register_prefix group should be
+" linked to when no longer active. By default, this is NONE.
+
+if !exists('g:highlight_register_prefix_link')
+  let g:highlight_register_prefix_link = 'NONE'
 endif
 
 
