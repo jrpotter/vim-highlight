@@ -10,7 +10,7 @@ endif
 let g:loaded_highlight_registry = 1
 
 
-" GLOBAL VARIABLES:
+" GLOBAL VARIABLES: {{{1
 " ==============================================================================
 
 " g:highlight_registry :: { String : { String : String } } {{{2
