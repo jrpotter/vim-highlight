@@ -51,7 +51,7 @@ v_["x]d&             Note the v indicates visual mode.  Removes the visually
                      selected region from register x.
 
 ==============================================================================
-Section 2: Statusline                                    *highlight-variables*
+Section 2: Variables                                     *highlight-variables*
 
 g:highlight_registry
 
